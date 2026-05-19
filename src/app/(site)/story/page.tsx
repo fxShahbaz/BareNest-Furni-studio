@@ -4,7 +4,21 @@ import { SHOWROOM } from "@/lib/utils";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Our Story — BareNest" };
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Our Story",
+  description:
+    "Eight years of furniture-making in north India, a notebook of every failure, and the decision to start a studio in Patna that refuses to stock particle board.",
+  alternates: { canonical: "/story" },
+  openGraph: {
+    title: "Our Story — BareNest",
+    description:
+      "How Gaurav Bahri's eight years on the shop floor became Bare Nest Furni Studio.",
+    url: "/story",
+    type: "article",
+  },
+};
 
 type Milestone = {
   year: string;

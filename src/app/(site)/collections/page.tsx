@@ -1,7 +1,20 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 
-export const metadata = { title: "Collections — BareNest" };
+export const metadata: Metadata = {
+  title: "Collections",
+  description:
+    "Curated BareNest furniture sets — first-home bedroom, dining for six, the WFH desk-and-chair pair. Pieces that work together by design.",
+  alternates: { canonical: "/collections" },
+  openGraph: {
+    title: "Collections — BareNest",
+    description:
+      "Curated furniture sets. First-home, dining, WFH — pieces that work together.",
+    url: "/collections",
+    type: "website",
+  },
+};
 
 const COLLECTIONS = [
   {

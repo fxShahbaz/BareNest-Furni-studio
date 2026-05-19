@@ -8,6 +8,9 @@ import {
   renderMarkdown,
   formatPostDate,
 } from "@/lib/blog";
+import BlogPostJsonLd from "@/components/seo/blog-post-json-ld";
+import BreadcrumbsJsonLd from "@/components/seo/breadcrumbs-json-ld";
+import HowToJsonLd from "@/components/seo/howto-json-ld";
 
 export function generateStaticParams() {
   return getAllPosts().map((p) => ({ slug: p.slug }));
@@ -20,14 +23,33 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
   const post = getPostBySlug(slug);
-  if (!post) return { title: "Not found — BareNest" };
+  if (!post) return { title: "Not found" };
   return {
-    title: `${post.title} — BareNest Blog`,
+    title: post.title,
     description: post.excerpt,
+    alternates: { canonical: `/blog/${post.slug}` },
+    keywords: post.title.split(/\s+/).slice(0, 8),
+    authors: [{ name: post.author }],
     openGraph: {
       title: post.title,
       description: post.excerpt,
+      url: `/blog/${post.slug}`,
       type: "article",
+      publishedTime: post.date,
+      authors: [post.author],
+      images: [
+        {
+          url: post.cover,
+          width: 1600,
+          height: 1000,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
       images: [post.cover],
     },
   };
@@ -52,6 +74,24 @@ export default async function BlogPostPage({
 
   return (
     <article className="pt-28 pb-24 md:pt-36">
+      <BlogPostJsonLd post={post} />
+      <BreadcrumbsJsonLd
+        crumbs={[
+          { name: "Blog", path: "/blog" },
+          { name: post.title, path: `/blog/${post.slug}` },
+        ]}
+      />
+      {post.howTo && (
+        <HowToJsonLd
+          data={{
+            name: post.howTo.name,
+            description: post.howTo.description,
+            totalTime: post.howTo.totalTime,
+            image: post.cover,
+            steps: post.howTo.steps,
+          }}
+        />
+      )}
       <div className="mx-auto max-w-[760px] px-6 md:px-8">
         {/* Back chip */}
         <Link

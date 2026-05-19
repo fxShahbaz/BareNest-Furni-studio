@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState, useActionState } from "react";
+import { useEffect, useRef, useState, useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useCart } from "@/store/cart";
 import { formatINR, formatTaxLabel } from "@/lib/utils";
+import { compressMany } from "@/lib/image-compression";
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -14,6 +15,7 @@ import {
   Check,
   FileText,
   Hash,
+  Loader2,
   MapPin,
   MessageCircle,
   Phone as PhoneIcon,
@@ -467,17 +469,62 @@ function NotesField() {
 function AttachmentsField() {
   const [files, setFiles] = useState<File[]>([]);
   const [dragOver, setDragOver] = useState(false);
+  const [compressing, setCompressing] = useState(false);
+  const [originalBytes, setOriginalBytes] = useState(0);
+  const [compressedBytes, setCompressedBytes] = useState(0);
 
   const oversized = files.filter((f) => f.size > MAX_FILE_MB * 1024 * 1024);
   const overCount = files.length > MAX_ATTACHMENTS;
+  const savings =
+    originalBytes > 0 && compressedBytes < originalBytes
+      ? Math.round((1 - compressedBytes / originalBytes) * 100)
+      : 0;
 
-  function onPick(list: FileList | null) {
+  // Sync compressed files back into the <input>, so the natural form
+  // submission uploads our compressed versions rather than the originals.
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  function syncInputFiles(next: File[]) {
+    const input = inputRef.current;
+    if (!input) return;
+    const dt = new DataTransfer();
+    for (const f of next) dt.items.add(f);
+    input.files = dt.files;
+  }
+
+  async function onPick(list: FileList | null) {
     if (!list) return;
-    setFiles(Array.from(list));
+    const raw = Array.from(list);
+    if (raw.length === 0) return;
+
+    setOriginalBytes(raw.reduce((s, f) => s + f.size, 0));
+    setCompressing(true);
+    try {
+      const compressed = await compressMany(raw, {
+        maxDimension: 2000,
+        quality: 0.82,
+      });
+      setFiles(compressed);
+      syncInputFiles(compressed);
+      setCompressedBytes(compressed.reduce((s, f) => s + f.size, 0));
+    } finally {
+      setCompressing(false);
+    }
   }
 
   function remove(idx: number) {
-    setFiles((prev) => prev.filter((_, i) => i !== idx));
+    setFiles((prev) => {
+      const next = prev.filter((_, i) => i !== idx);
+      syncInputFiles(next);
+      // Update totals to reflect the visible set.
+      setCompressedBytes(next.reduce((s, f) => s + f.size, 0));
+      return next;
+    });
+  }
+
+  function formatBytes(n: number) {
+    if (n < 1024) return `${n} B`;
+    if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
+    return `${(n / 1024 / 1024).toFixed(1)} MB`;
   }
 
   return (
@@ -501,15 +548,27 @@ function AttachmentsField() {
             : "border-ink/15 bg-cream/30 hover:bg-cream/50"
         }`}
       >
-        <Camera className="h-5 w-5 text-muted" />
+        {compressing ? (
+          <Loader2 className="h-5 w-5 animate-spin text-muted" />
+        ) : (
+          <Camera className="h-5 w-5 text-muted" />
+        )}
         <p className="text-sm text-ink">
-          Drag photos here, or{" "}
-          <span className="underline underline-offset-2">browse</span>
+          {compressing ? (
+            "Compressing photos…"
+          ) : (
+            <>
+              Drag photos here, or{" "}
+              <span className="underline underline-offset-2">browse</span>
+            </>
+          )}
         </p>
         <p className="text-[11px] text-muted">
-          JPG / PNG · up to {MAX_ATTACHMENTS} files · {MAX_FILE_MB}MB each
+          JPG / PNG · up to {MAX_ATTACHMENTS} files · auto-compressed before
+          upload
         </p>
         <input
+          ref={inputRef}
           name="attachments"
           type="file"
           accept="image/*"
@@ -560,6 +619,13 @@ function AttachmentsField() {
             `Only the first ${MAX_ATTACHMENTS} will be sent. `}
           {oversized.length > 0 &&
             `${oversized.length} file${oversized.length > 1 ? "s" : ""} over ${MAX_FILE_MB}MB will be skipped.`}
+        </span>
+      )}
+
+      {savings > 0 && (
+        <span className="mt-2 block text-xs text-leaf">
+          Photos compressed: {formatBytes(originalBytes)} →{" "}
+          {formatBytes(compressedBytes)} ({savings}% smaller). Faster upload.
         </span>
       )}
     </label>

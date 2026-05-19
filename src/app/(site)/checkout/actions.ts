@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { formatINR, SHOWROOM } from "@/lib/utils";
+import { optimizeImage } from "@/lib/image-optimize";
 
 type Item = {
   slug: string;
@@ -11,6 +12,10 @@ type Item = {
   price: number;
   qty: number;
   material: string;
+  /** Snapshotted at order time so a later product edit can't mutate this order's invoice. */
+  gst_rate: number;
+  tax_inclusive: boolean;
+  hsn_code: string | null;
 };
 
 export type CheckoutState =
@@ -116,12 +121,15 @@ export async function submitOrder(
       return { error: "Cart items look malformed." };
     }
 
-    // -- Refetch authoritative prices from products by slug.
+    // -- Refetch authoritative prices + tax fields from products by slug.
+    // We snapshot tax fields onto the order so a later product edit
+    // (rate change, HSN correction, etc.) doesn't mutate this order's
+    // invoice on reprint.
     const admin = supabaseAdmin();
     const slugs = Array.from(new Set(clientItems.map((i) => i.slug)));
     const { data: priceRows, error: priceError } = await admin
       .from("products")
-      .select("slug,name,price,material")
+      .select("slug,name,price,material,gst_rate,tax_inclusive,hsn_code")
       .in("slug", slugs);
 
     if (priceError) {
@@ -135,6 +143,9 @@ export async function submitOrder(
           name: r.name as string,
           price: r.price as number,
           material: r.material as string,
+          gst_rate: (r.gst_rate as number | null) ?? 18,
+          tax_inclusive: (r.tax_inclusive as boolean | null) ?? true,
+          hsn_code: (r.hsn_code as string | null) ?? null,
         },
       ])
     );
@@ -153,6 +164,9 @@ export async function submitOrder(
         price: truth.price,
         qty: ci.qty,
         material: truth.material,
+        gst_rate: truth.gst_rate,
+        tax_inclusive: truth.tax_inclusive,
+        hsn_code: truth.hsn_code,
       });
     }
     const total = items.reduce((sum, i) => sum + i.price * i.qty, 0);
@@ -179,13 +193,24 @@ export async function submitOrder(
         skippedAttachments += 1;
         continue;
       }
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const path = `${orderId}/${Date.now()}_${safeName}`;
-      const buf = Buffer.from(await file.arrayBuffer());
+
+      // Server-side optimization: resize + strip EXIF + re-encode to
+      // WebP. The buffer + content type + extension all come from the
+      // optimizer so the file we write to Supabase reflects the final
+      // bytes, not the upload.
+      const optimized = await optimizeImage(file, {
+        maxDimension: 2000,
+        quality: 80,
+        format: "webp",
+      });
+      const baseName = file.name
+        .replace(/\.[a-zA-Z0-9]+$/, "")
+        .replace(/[^a-zA-Z0-9._-]/g, "_");
+      const path = `${orderId}/${Date.now()}_${baseName}${optimized.extension}`;
       const { error: uploadError } = await admin.storage
         .from("order-attachments")
-        .upload(path, buf, {
-          contentType: file.type || "application/octet-stream",
+        .upload(path, optimized.buffer, {
+          contentType: optimized.contentType,
           upsert: false,
         });
       if (uploadError) {

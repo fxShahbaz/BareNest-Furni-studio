@@ -14,6 +14,7 @@ type RawItem = {
   material?: string;
   gst_rate?: number;
   tax_inclusive?: boolean;
+  hsn_code?: string | null;
 };
 
 type OrderRow = {
@@ -90,7 +91,9 @@ function computeLine(item: RawItem, hint: ProductTaxInfo | undefined): LineCompu
     slug: item.slug ?? "",
     name: item.name ?? "—",
     qty,
-    hsn: hint?.hsn_code ?? "—",
+    // Prefer the snapshot on the order line; fall back to the live product
+    // hint only when the order pre-dates the snapshotting code path.
+    hsn: item.hsn_code ?? hint?.hsn_code ?? "—",
     unitListed,
     unitTaxable,
     unitGst,

@@ -102,6 +102,11 @@ export default function ManualOrderForm({
           />
           <Field name="customer_pincode" label="Pincode" required />
         </div>
+        <Field
+          name="customer_gstin"
+          label="GSTIN (optional — for B2B billing)"
+          placeholder="15-char, e.g. 10ABCDE1234F1Z5"
+        />
         <Field name="notes" label="Notes (optional)" textarea />
       </div>
 
@@ -213,6 +218,7 @@ function Field({
   defaultValue,
   required,
   textarea,
+  placeholder,
 }: {
   name: string;
   label: string;
@@ -220,6 +226,7 @@ function Field({
   defaultValue?: string;
   required?: boolean;
   textarea?: boolean;
+  placeholder?: string;
 }) {
   return (
     <label className="block">
@@ -229,6 +236,7 @@ function Field({
           name={name}
           defaultValue={defaultValue}
           required={required}
+          placeholder={placeholder}
           rows={3}
           className="mt-2 w-full rounded-2xl border border-ink/15 bg-bone px-4 py-3 text-sm focus:border-ink focus:outline-none"
         />
@@ -238,6 +246,7 @@ function Field({
           type={type}
           defaultValue={defaultValue}
           required={required}
+          placeholder={placeholder}
           className="mt-2 w-full rounded-full border border-ink/15 bg-bone px-5 py-3 text-sm focus:border-ink focus:outline-none"
         />
       )}

@@ -6,14 +6,52 @@ import {
 } from "@/lib/queries/products";
 import { formatINR, formatTaxLabel } from "@/lib/utils";
 import AddToCartButton from "@/components/add-to-cart-button";
+import EnquiryButton from "@/components/enquiry-button";
+import ProductImage from "@/components/product-image";
+import { getSettings } from "@/lib/queries/settings";
 import Link from "next/link";
+import ProductJsonLd from "@/components/seo/product-json-ld";
+import BreadcrumbsJsonLd from "@/components/seo/breadcrumbs-json-ld";
 
 type Params = Promise<{ slug: string }>;
 
 export async function generateMetadata({ params }: { params: Params }) {
   const { slug } = await params;
   const p = await getProductBySlug(slug);
-  return p ? { title: `${p.name} — BareNest` } : { title: "BareNest" };
+  if (!p) return { title: "Not found" };
+  const description =
+    p.description || `${p.name} — ${p.material} furniture by BareNest, made in Patna.`;
+  return {
+    title: p.name,
+    description,
+    alternates: { canonical: `/shop/${p.slug}` },
+    keywords: [
+      p.name,
+      p.material,
+      p.category,
+      "furniture Patna",
+      "buy furniture India",
+      "BareNest",
+    ],
+    openGraph: {
+      title: p.name,
+      description,
+      url: `/shop/${p.slug}`,
+      type: "website",
+      images: p.images.slice(0, 1).map((img) => ({
+        url: img,
+        width: 1200,
+        height: 1200,
+        alt: p.name,
+      })),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: p.name,
+      description,
+      images: p.images.slice(0, 1),
+    },
+  };
 }
 
 export default async function ProductPage({ params }: { params: Params }) {
@@ -22,9 +60,17 @@ export default async function ProductPage({ params }: { params: Params }) {
   if (!p) notFound();
 
   const related = await getRelatedProducts(p.category, p.slug, 3);
+  const { online_ordering_enabled } = await getSettings();
 
   return (
     <div className="pt-28 pb-24">
+      <ProductJsonLd product={p} />
+      <BreadcrumbsJsonLd
+        crumbs={[
+          { name: "Shop", path: "/shop" },
+          { name: p.name, path: `/shop/${p.slug}` },
+        ]}
+      />
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <Link
           href="/shop"
@@ -37,13 +83,13 @@ export default async function ProductPage({ params }: { params: Params }) {
           {/* Gallery */}
           <div className="md:col-span-7">
             <div className="relative aspect-[5/4] overflow-hidden rounded-3xl bg-cream">
-              <Image
+              <ProductImage
                 src={p.images[0]}
                 alt={p.name}
-                fill
                 sizes="(min-width: 768px) 58vw, 100vw"
                 className="object-cover"
                 priority
+                iconClassName="h-24 w-24"
               />
               <span className="absolute left-4 top-4 rounded-full bg-bone/90 px-3 py-1 text-[11px] uppercase tracking-[0.2em]">
                 {p.material}
@@ -86,7 +132,19 @@ export default async function ProductPage({ params }: { params: Params }) {
               </span>
             </div>
 
-            <AddToCartButton product={p} />
+            {online_ordering_enabled ? (
+              <AddToCartButton product={p} />
+            ) : (
+              <EnquiryButton
+                product={{
+                  slug: p.slug,
+                  name: p.name,
+                  material: p.material,
+                  price: p.price,
+                  image: p.images[0],
+                }}
+              />
+            )}
 
             <div className="mt-10 hairline" />
 

@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { formatINR, SHOWROOM } from "@/lib/utils";
 import { ArrowRight, MessageCircle, CheckCircle2 } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Order Confirmed",
+  description: "Your BareNest order is recorded. We'll confirm on WhatsApp shortly.",
+  robots: { index: false, follow: false },
+};
 
 type OrderRow = {
   id: string;

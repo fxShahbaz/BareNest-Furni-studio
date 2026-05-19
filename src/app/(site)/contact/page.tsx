@@ -1,7 +1,21 @@
+import type { Metadata } from "next";
 import { SHOWROOM } from "@/lib/utils";
 import ContactClient from "./contact-client";
+import FaqJsonLd from "@/components/seo/faq-json-ld";
 
-export const metadata = { title: "Contact — BareNest" };
+export const metadata: Metadata = {
+  title: "Contact",
+  description:
+    "WhatsApp the studio, email us, or book a showroom visit. Bare Nest Furni Studio · Patna. Replies within a couple of hours during studio hours.",
+  alternates: { canonical: "/contact" },
+  openGraph: {
+    title: "Contact BareNest — Patna Studio",
+    description:
+      "Reach the studio on WhatsApp, email, or book a showroom visit.",
+    url: "/contact",
+    type: "website",
+  },
+};
 
 const FAQ = [
   {
@@ -28,13 +42,16 @@ const FAQ = [
 
 export default function ContactPage() {
   return (
-    <ContactClient
-      whatsappE164={SHOWROOM.whatsappE164}
-      email={SHOWROOM.email}
-      studio={SHOWROOM.studio}
-      city={SHOWROOM.city}
-      founder={SHOWROOM.founder}
-      faq={FAQ}
-    />
+    <>
+      <FaqJsonLd items={FAQ} />
+      <ContactClient
+        whatsappE164={SHOWROOM.whatsappE164}
+        email={SHOWROOM.email}
+        studio={SHOWROOM.studio}
+        city={SHOWROOM.city}
+        founder={SHOWROOM.founder}
+        faq={FAQ}
+      />
+    </>
   );
 }

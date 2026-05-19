@@ -4,7 +4,30 @@ import WoodSwatch from "@/components/wood-swatch";
 import MaterialsClient from "./materials-client";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Materials — BareNest" };
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Materials We Use",
+  description:
+    "Solid wood and MDF, used honestly. Why we trust sheesham, teak, and good MDF — and why we refuse to stock particle board.",
+  alternates: { canonical: "/materials" },
+  keywords: [
+    "solid wood furniture",
+    "MDF furniture",
+    "no particle board",
+    "sheesham wood",
+    "teak wood",
+    "mango wood",
+    "furniture materials India",
+  ],
+  openGraph: {
+    title: "Materials — BareNest",
+    description:
+      "Two materials we trust, one we refuse. The honest case for solid wood + MDF over particle board.",
+    url: "/materials",
+    type: "article",
+  },
+};
 
 type Detail = {
   kind: "solid" | "mdf" | "particle";

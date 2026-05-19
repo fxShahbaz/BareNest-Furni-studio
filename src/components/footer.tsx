@@ -111,10 +111,22 @@ export default function Footer() {
 
           <div className="md:col-span-3">
             <p className="eyebrow text-bone/60">Visit</p>
-            <p className="mt-4 text-sm text-bone/80">
+            <p className="mt-4 text-sm leading-relaxed text-bone/80">
               {SHOWROOM.studio}
               <br />
-              Address coming soon
+              {SHOWROOM.address.lines.map((line, i) => (
+                <span key={line}>
+                  {line}
+                  {i < SHOWROOM.address.lines.length - 1 && <br />}
+                </span>
+              ))}
+              <br />
+              <a
+                href={`tel:+${SHOWROOM.whatsappE164}`}
+                className="underline-offset-4 hover:underline"
+              >
+                +91 9031 4287 28
+              </a>
               <br />
               <a
                 href={`mailto:${SHOWROOM.email}`}

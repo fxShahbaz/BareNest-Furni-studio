@@ -10,6 +10,14 @@ export type BlogPost = {
   readingMinutes: number;
   author: string;
   body: string; // markdown source
+  // Optional HowTo schema payload — set on instructional posts so Google
+  // can render step cards in search results.
+  howTo?: {
+    name: string;
+    description: string;
+    totalTime?: string; // ISO 8601 duration like "PT15M"
+    steps: { name: string; text: string }[];
+  };
 };
 
 // Configure marked to be predictable: GFM on, no header IDs (we own the

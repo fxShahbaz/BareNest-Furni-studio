@@ -55,7 +55,7 @@ function BrandLockup({
           <span className="text-walnut">bare</span>
           <span className="ml-1 text-leaf">nest</span>
         </span>
-        <span className="mt-1 text-[9px] uppercase tracking-[0.22em] text-muted">
+        <span className="mt-1 hidden text-[9px] uppercase tracking-[0.22em] text-muted sm:inline">
           Furni Studio · Patna
         </span>
       </span>
@@ -67,10 +67,15 @@ const NAV = [
   { href: "/shop", label: "Shop", caption: "The first catalogue" },
   { href: "/collections", label: "Collections", caption: "Curated by room" },
   { href: "/story", label: "Story", caption: "Why we won't use particle board" },
+  { href: "/blog", label: "Blog", caption: "Notes from the workshop" },
   { href: "/showroom", label: "Showroom", caption: "Visit us in Patna" },
 ];
 
-export default function Navbar() {
+export default function Navbar({
+  onlineOrderingEnabled = true,
+}: {
+  onlineOrderingEnabled?: boolean;
+}) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const count = useCart((s) => s.items.reduce((a, b) => a + b.qty, 0));
@@ -117,7 +122,7 @@ export default function Navbar() {
           // We only animate the border *color* and the background.
           "border-b",
           scrolled
-            ? "backdrop-blur-md bg-bone/75 border-ink/5"
+            ? "backdrop-blur-md bg-bone/90 border-ink/5"
             : "bg-transparent border-transparent"
         )}
       >
@@ -139,18 +144,20 @@ export default function Navbar() {
 
         <div className="flex items-center gap-3">
           <AuthChip />
-          <Link
-            href="/cart"
-            aria-label="Cart"
-            className="relative grid h-10 w-10 place-items-center rounded-full border border-ink/10 hover:bg-ink/5"
-          >
-            <ShoppingBag className="h-4 w-4" />
-            {count > 0 && (
-              <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-rust px-1 text-[10px] font-medium text-bone">
-                {count}
-              </span>
-            )}
-          </Link>
+          {onlineOrderingEnabled && (
+            <Link
+              href="/cart"
+              aria-label="Cart"
+              className="relative grid h-10 w-10 place-items-center rounded-full border border-ink/10 hover:bg-ink/5"
+            >
+              <ShoppingBag className="h-4 w-4" />
+              {count > 0 && (
+                <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-rust px-1 text-[10px] font-medium text-bone">
+                  {count}
+                </span>
+              )}
+            </Link>
+          )}
           <Link
             href="/showroom"
             className="hidden items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm text-bone transition-transform hover:-translate-y-0.5 md:inline-flex"
@@ -179,6 +186,9 @@ export default function Navbar() {
         aria-label="Site menu"
         className={cn(
           "fixed inset-0 z-[60] flex flex-col bg-bone transition-transform duration-500 md:hidden",
+          // Clips drawer overflow so footer doesn't bleed through the closed
+          // (translated) state when content is taller than the viewport.
+          "overflow-y-auto overscroll-contain",
           open ? "translate-y-0" : "-translate-y-full pointer-events-none"
         )}
       >
@@ -256,16 +266,20 @@ export default function Navbar() {
             </span>
           </Link>
           <div className="mt-5 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-muted">
-            <Link
-              href="/cart"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 text-ink"
-            >
-              <ShoppingBag className="h-4 w-4" />
-              <span>
-                Cart{count > 0 ? ` · ${count}` : ""}
-              </span>
-            </Link>
+            {onlineOrderingEnabled ? (
+              <Link
+                href="/cart"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 text-ink"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                <span>
+                  Cart{count > 0 ? ` · ${count}` : ""}
+                </span>
+              </Link>
+            ) : (
+              <span />
+            )}
             <span>Studio · Patna</span>
           </div>
         </div>

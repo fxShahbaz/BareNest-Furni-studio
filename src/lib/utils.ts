@@ -5,15 +5,42 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// Canonical site URL. Set NEXT_PUBLIC_SITE_URL in production (Vercel env
+// var, etc). Used for sitemap, robots, og:url, JSON-LD canonicals. Falls
+// back to a stable production guess so local dev doesn't break.
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL || "https://barenest.in"
+).replace(/\/$/, "");
+
+export function absoluteUrl(path: string): string {
+  if (!path) return SITE_URL;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
 export const SHOWROOM = {
   brand: "BareNest",
   studio: "Bare Nest Furni Studio",
   founder: "Gaurav Bahri",
   founderYears: 8,
   inaugurationISO: "2026-06-18T11:00:00+05:30",
-  whatsappE164: "919999999999",
-  email: "hello@barenest.studio",
+  whatsappE164: "919031428728",
+  email: "hello@barenest.in",
   city: "Patna",
+  address: {
+    streetAddress:
+      "Ground Floor, House No 285, Lohiya Path, Garbhuchak, P.S. Rukanpura",
+    locality: "Patna",
+    region: "Bihar",
+    postalCode: "800014",
+    country: "IN",
+    // Display-ready 3-line form for footers, invoices, contact card.
+    lines: [
+      "Ground Floor, House No 285, Lohiya Path",
+      "Garbhuchak, P.S. Rukanpura",
+      "Patna, Bihar 800014",
+    ],
+  },
   // Used on the printable tax invoice. Replace placeholders with the
   // studio's real legal details before going live.
   tax: {
@@ -21,8 +48,9 @@ export const SHOWROOM = {
     gstin: "10AAAAA0000A1Z5",      // 15-char placeholder — replace with real GSTIN
     pan: "AAAAA0000A",              // placeholder
     addressLines: [
-      "Address coming soon",
-      "Patna, Bihar 800001",
+      "Ground Floor, House No 285, Lohiya Path",
+      "Garbhuchak, P.S. Rukanpura",
+      "Patna, Bihar 800014",
     ],
     state: "Bihar",
     stateCode: "10",                // Bihar GST state code; used to decide intra vs inter-state supply

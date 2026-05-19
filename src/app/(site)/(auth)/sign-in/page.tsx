@@ -3,7 +3,12 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import SignInForm from "./sign-in-form";
 
-export const metadata = { title: "Sign in — BareNest" };
+export const metadata = {
+  title: "Sign in",
+  description: "Sign in to your BareNest account to track orders and saved items.",
+  alternates: { canonical: "/sign-in" },
+  robots: { index: false, follow: true },
+};
 
 export default async function SignInPage({
   searchParams,

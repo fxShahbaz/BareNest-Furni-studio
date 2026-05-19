@@ -15,9 +15,16 @@ const ITEMS = [
   { href: "/showroom", label: "Visit", Icon: MapPin },
 ] as const;
 
-export default function MobileDock() {
+export default function MobileDock({
+  onlineOrderingEnabled = true,
+}: {
+  onlineOrderingEnabled?: boolean;
+}) {
   const pathname = usePathname();
   const count = useCart((s) => s.items.reduce((a, b) => a + b.qty, 0));
+  const items = onlineOrderingEnabled
+    ? ITEMS
+    : ITEMS.filter((i) => i.href !== "/cart");
 
   const [hidden, setHidden] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -67,7 +74,7 @@ export default function MobileDock() {
         aria-label="Primary"
         className="mx-auto flex max-w-sm items-stretch gap-1 rounded-full border border-ink/10 bg-bone/85 p-1.5 shadow-[0_18px_50px_-18px_rgba(20,17,14,0.45)] backdrop-blur-xl"
       >
-        {ITEMS.map((it) => {
+        {items.map((it) => {
           const active = isActive(it.href);
           const showBadge = "badge" in it && it.badge && count > 0;
           return (

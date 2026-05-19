@@ -3,10 +3,20 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { getAllPosts, formatPostDate } from "@/lib/blog";
 
-export const metadata = {
-  title: "Blog — BareNest",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Blog",
   description:
-    "Notes from the workshop: materials, process, and dispatches from Bare Nest Furni Studio in Patna.",
+    "Notes from the workshop: materials, process, buying guides, and dispatches from Bare Nest Furni Studio in Patna.",
+  alternates: { canonical: "/blog" },
+  openGraph: {
+    title: "Blog — BareNest",
+    description:
+      "Editorial posts on solid wood, MDF, furniture buying, and life at the studio.",
+    url: "/blog",
+    type: "website",
+  },
 };
 
 export default function BlogIndexPage() {

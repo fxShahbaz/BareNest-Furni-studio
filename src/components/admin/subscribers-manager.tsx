@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Search,
   ArrowDownUp,
@@ -13,6 +13,7 @@ import {
 import { deleteSubscriber } from "@/app/admin/(gated)/actions";
 import ConfirmDialog from "@/components/admin/confirm-dialog";
 import AdminHeaderActions from "@/components/admin/admin-header-actions";
+import Pagination from "@/components/admin/pagination";
 
 export type SubscriberRow = {
   email: string;
@@ -55,6 +56,8 @@ export default function SubscribersManager({
   const [pending, setPending] = useState<SubscriberRow | null>(null);
   const [exporting, setExporting] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -81,6 +84,15 @@ export default function SubscribersManager({
     }
     return sorted;
   }, [subscribers, query, sort]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [query, sort]);
+
+  const paged = useMemo(
+    () => visible.slice((page - 1) * pageSize, page * pageSize),
+    [visible, page, pageSize]
+  );
 
   async function copyAll() {
     const text = visible.map((s) => s.email).join(", ");
@@ -242,7 +254,7 @@ export default function SubscribersManager({
       </p>
 
       <div className="mt-3 divide-y divide-ink/10 rounded-3xl border border-ink/10 bg-cream/30">
-        {visible.map((s) => (
+        {paged.map((s) => (
           <div
             key={s.email}
             className="flex items-center gap-3 p-4 hover:bg-cream/60"
@@ -299,6 +311,18 @@ export default function SubscribersManager({
           </div>
         )}
       </div>
+
+      <Pagination
+        total={visible.length}
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={(n) => {
+          setPageSize(n);
+          setPage(1);
+        }}
+        label="subscribers"
+      />
 
       <ConfirmDialog
         open={!!pending}

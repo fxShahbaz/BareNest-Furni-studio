@@ -12,6 +12,7 @@ import {
 } from "../actions";
 import type { Product } from "@/lib/products";
 import type { Category } from "@/lib/queries/categories";
+import { compressImage } from "@/lib/image-compression";
 
 export default function ProductForm({
   initial,
@@ -36,8 +37,16 @@ export default function ProductForm({
     setUploading(true);
     setUploadError(null);
     try {
+      // Compress before upload — product shots usually arrive as multi-MB
+      // phone exports. Compressing trims ~70-90% and saves Supabase
+      // storage. Wider max dimension than checkout because product
+      // hero images get displayed at full width.
+      const compressed = await compressImage(file, {
+        maxDimension: 2400,
+        quality: 0.85,
+      });
       const fd = new FormData();
-      fd.set("file", file);
+      fd.set("file", compressed);
       const res = await uploadProductImage(fd);
       setImages((cur) => [...cur, res.url]);
     } catch (e) {

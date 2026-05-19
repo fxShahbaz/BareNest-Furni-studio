@@ -11,6 +11,38 @@ export const post: BlogPost = {
   date: "2026-04-12",
   readingMinutes: 10,
   author: "Gaurav Bahri",
+  howTo: {
+    name: "How to care for solid wood furniture in Indian climates",
+    description:
+      "A four-season care calendar for wood furniture in Patna and similar climates — what to do in dry summer, peak monsoon, post-monsoon settle, and winter.",
+    totalTime: "PT20M",
+    steps: [
+      {
+        name: "Summer — protect from direct sun and dry blasts",
+        text: "March to May (44°C+, very dry): keep furniture away from west-facing afternoon sun and direct AC airflow. Wipe weekly with a barely-damp microfibre cloth. Do not polish or wax in peak heat — the wood is at its driest.",
+      },
+      {
+        name: "Monsoon — wipe spills, lift from damp walls",
+        text: "June to September (humidity 80-95%): wipe spills within minutes; leave a 1cm gap behind wardrobes for airflow; run a ceiling fan in rooms with poor ventilation; expect doors and drawers to stick — don't force them, they'll release when humidity drops.",
+      },
+      {
+        name: "Post-monsoon — annual wax polish",
+        text: "October to November: clean with a barely-damp cloth and mild soap, then apply one thin coat of beeswax paste with a lint-free cloth, buff off after 10 minutes. Re-tighten all hinges and brackets that have loosened through monsoon.",
+      },
+      {
+        name: "Winter — light dusting only",
+        text: "December to February: continue weekly dusting. No polishing needed. Watch for hairline cracks under 0.5mm (normal seasonal movement) — anything wider, note for a workshop visit.",
+      },
+      {
+        name: "Avoid silicone-based commercial polishes",
+        text: "Most commercial 'wood polish' sprays in India are silicone-based, which prevent any future finish from adhering. Stick to beeswax paste.",
+      },
+      {
+        name: "Address issues early",
+        text: "A drawer that suddenly sticks, a door that won't close, a panel with a fingertip-deep dip — these are early signals. The earlier you address them, the cheaper the fix.",
+      },
+    ],
+  },
   body: `
 Wood is alive even after it's been cut, seasoned, and joined. It absorbs
 moisture in monsoon, loses it in dry summer, expands across the grain, and

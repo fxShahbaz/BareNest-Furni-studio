@@ -3,6 +3,13 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactCompiler: true,
   images: {
+    // We pre-optimize every uploaded image with sharp at write time (see
+    // src/lib/image-optimize.ts). The bytes already in Supabase are the
+    // final bytes we want to serve, so we DON'T want Vercel's on-demand
+    // image-optimization service rewriting them at request time. This
+    // makes us portable (no Vercel coupling) and avoids the per-image
+    // transform billing on production.
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",

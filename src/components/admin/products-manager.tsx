@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import ProductImage from "@/components/product-image";
 import {
   Search,
   ExternalLink,
@@ -197,22 +197,19 @@ export default function ProductsManager({
         {visible.map((p) => (
           <div
             key={p.slug}
-            className="group flex items-center gap-4 p-4 hover:bg-cream/60"
+            className="group flex flex-col gap-3 p-4 hover:bg-cream/60 sm:flex-row sm:items-center sm:gap-4"
           >
             <Link
               href={`/admin/products/${p.slug}`}
               className="flex flex-1 items-center gap-4 min-w-0"
             >
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-cream">
-                {p.images && p.images[0] && (
-                  <Image
-                    src={p.images[0]}
-                    alt={p.name}
-                    fill
-                    sizes="64px"
-                    className="object-cover"
-                  />
-                )}
+                <ProductImage
+                  src={p.images?.[0]}
+                  alt={p.name}
+                  sizes="64px"
+                  iconClassName="h-6 w-6"
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-display text-lg truncate">{p.name}</p>
@@ -222,6 +219,7 @@ export default function ProductsManager({
               </div>
             </Link>
 
+            <div className="flex items-center justify-between gap-2 sm:contents">
             <div className="flex items-center gap-1">
               <Link
                 href={`/shop/${p.slug}`}
@@ -282,9 +280,10 @@ export default function ProductsManager({
                 {(p.tax_inclusive ?? true) ? "Incl." : "Excl."}
               </span>
             </span>
-            <span className="w-24 shrink-0 text-right text-sm">
+            <span className="text-sm sm:w-24 sm:shrink-0 sm:text-right">
               {formatINR(p.price)}
             </span>
+            </div>
           </div>
         ))}
         {visible.length === 0 && (

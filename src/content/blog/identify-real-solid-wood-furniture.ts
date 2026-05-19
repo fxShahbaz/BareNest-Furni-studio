@@ -11,6 +11,50 @@ export const post: BlogPost = {
   date: "2026-04-25",
   readingMinutes: 12,
   author: "Gaurav Bahri",
+  howTo: {
+    name: "How to identify real solid wood furniture at the store",
+    description:
+      "Nine simple tests you can do in three minutes each, using a coin, a torch, and your thumbnail.",
+    totalTime: "PT15M",
+    steps: [
+      {
+        name: "Weight test",
+        text: "Lift one corner of the piece. Solid hardwood is heavy — a queen sheesham bed weighs 75-95 kg. If two people can carry it easily, it's not solid wood.",
+      },
+      {
+        name: "Cut-edge test",
+        text: "Ask to see an unfinished cut edge inside a drawer or behind a back panel. Solid wood shows continuous grain; particle board shows visible chunks and flakes.",
+      },
+      {
+        name: "Thumbnail dent test",
+        text: "Press your thumbnail firmly into an inconspicuous spot. Solid hardwood resists; particle board dents and may flake away.",
+      },
+      {
+        name: "Drawer-bottom test",
+        text: "Pull a drawer fully out and flip it. Good construction uses solid or thick-plywood bottoms in dadoes; cheap construction uses thin hardboard stapled to the bottom.",
+      },
+      {
+        name: "Joinery test",
+        text: "Inspect the corner joints. Dovetails or mortise-and-tenon = premium. Dowels with glue = mid. Visible L-brackets or staples = entry-level.",
+      },
+      {
+        name: "Smell test",
+        text: "Lean inside a closed cabinet and inhale. Solid wood smells like wood; particle board has a sharp formaldehyde-glue smell that persists for years.",
+      },
+      {
+        name: "Torch test for finishes",
+        text: "Shine a phone torch at a shallow angle along the grain. Real wood has depth and pore shadows; printed laminates show the same pattern from every angle.",
+      },
+      {
+        name: "Screw-thread test",
+        text: "Ask the salesperson to back out and re-tighten a screw. Solid wood and good MDF hold; particle board strips the moment you reverse the screw.",
+      },
+      {
+        name: "Water-spill test",
+        text: "If you can get hold of a sample piece, drop a few drops of water on the back. Solid wood barely changes; particle board swells visibly within an hour.",
+      },
+    ],
+  },
   body: `
 A veneer is a 0.6mm slice of real wood glued onto a substrate. A laminate
 is a printed plastic sheet that *looks* like wood. A "solid wood look"

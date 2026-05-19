@@ -1,19 +1,18 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Product } from "@/lib/products";
 import { formatINR, formatTaxLabel } from "@/lib/utils";
+import ProductImage from "@/components/product-image";
 
 export default function ProductCard({ product }: { product: Product }) {
   return (
     <Link href={`/shop/${product.slug}`} className="group block">
       <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-cream">
-        <Image
+        <ProductImage
           src={product.images[0]}
           alt={product.name}
-          fill
           sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
           className="object-cover transition-transform duration-700 group-hover:scale-105"
         />

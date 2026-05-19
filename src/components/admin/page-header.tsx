@@ -7,6 +7,8 @@ const titles: Array<{ match: RegExp; eyebrow: string; title: string }> = [
   { match: /^\/admin\/orders/, eyebrow: "Admin", title: "Orders" },
   { match: /^\/admin\/customers/, eyebrow: "Admin", title: "Customers" },
   { match: /^\/admin\/subscribers/, eyebrow: "Admin", title: "Subscribers" },
+  { match: /^\/admin\/enquiries/, eyebrow: "Admin", title: "Enquiries" },
+  { match: /^\/admin\/settings/, eyebrow: "Admin", title: "Settings" },
   { match: /^\/admin\/products\/new$/, eyebrow: "Admin · Products", title: "New product" },
   { match: /^\/admin\/products\/[^/]+$/, eyebrow: "Admin · Products", title: "Edit product" },
   { match: /^\/admin\/products/, eyebrow: "Admin", title: "Products" },

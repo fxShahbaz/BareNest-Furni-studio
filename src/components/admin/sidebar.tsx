@@ -15,16 +15,20 @@ import {
   ChevronsRight,
   FileText,
   Mail,
+  MessageSquare,
+  Settings,
 } from "lucide-react";
 import { signOut } from "@/app/auth/actions";
 
 const items = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
+  { href: "/admin/enquiries", label: "Enquiries", icon: MessageSquare },
   { href: "/admin/invoices", label: "Invoices", icon: FileText },
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/subscribers", label: "Subscribers", icon: Mail },
   { href: "/admin/products", label: "Products", icon: Package },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 const STORAGE_KEY = "bn-admin-sidebar-collapsed";

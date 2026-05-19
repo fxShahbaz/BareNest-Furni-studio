@@ -12,6 +12,7 @@ type Row = {
   customer_phone: string;
   customer_email: string | null;
   customer_address: string;
+  customer_gstin: string | null;
   notes: string | null;
   items: OrderItem[];
   total: number;
@@ -27,7 +28,7 @@ export default async function AdminOrdersPage() {
   const { data, error } = await admin
     .from("orders")
     .select(
-      "id,customer_name,customer_phone,customer_email,customer_address,notes,items,total,status,source,attachments,invoice_number,created_at"
+      "id,customer_name,customer_phone,customer_email,customer_address,customer_gstin,notes,items,total,status,source,attachments,invoice_number,created_at"
     )
     .order("created_at", { ascending: false })
     .limit(200);

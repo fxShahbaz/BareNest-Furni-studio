@@ -1,11 +1,26 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { SHOWROOM } from "@/lib/utils";
+import LaunchEventJsonLd from "@/components/seo/launch-event-json-ld";
 
-export const metadata = { title: "Showroom — BareNest" };
+export const metadata: Metadata = {
+  title: "Showroom · Patna",
+  description:
+    "Reserve a preview slot for Bare Nest Furni Studio. Honest furniture in Patna, Bihar — opening 18 June 2026.",
+  alternates: { canonical: "/showroom" },
+  openGraph: {
+    title: "Visit the Showroom — BareNest, Patna",
+    description:
+      "Bare Nest Furni Studio opens 18 June 2026 in Patna. Reserve a preview slot.",
+    url: "/showroom",
+    type: "website",
+  },
+};
 
 export default function ShowroomPage() {
   return (
     <div className="pt-32 pb-24">
+      <LaunchEventJsonLd />
       <div className="mx-auto max-w-[1100px] px-6 md:px-10">
         <p className="eyebrow text-muted">Showroom</p>
         <h1 className="mt-3 font-display text-5xl leading-[1.05] tracking-tight md:text-7xl">
@@ -27,8 +42,10 @@ export default function ShowroomPage() {
             </a>
           </Card>
           <Card title="Visit at launch">
-            Inauguration: 18 June 2026, 11:00 AM IST.{" "}
-            <span className="text-muted">Address to be announced.</span>
+            Inauguration: 18 June 2026, 11:00 AM IST.
+            <span className="mt-3 block whitespace-pre-line text-muted">
+              {`${SHOWROOM.studio}\n${SHOWROOM.address.lines.join("\n")}`}
+            </span>
           </Card>
           <Card title="Architects & designers">
             We work with practices on custom dimensions, finishes, and bulk

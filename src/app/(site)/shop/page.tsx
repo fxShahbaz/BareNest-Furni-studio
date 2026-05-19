@@ -1,10 +1,30 @@
+import type { Metadata } from "next";
 import ProductCard from "@/components/product-card";
 import { CATEGORIES } from "@/lib/products";
 import { getAllProducts } from "@/lib/queries/products";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Shop — BareNest",
+export const metadata: Metadata = {
+  title: "Shop",
+  description:
+    "Browse the BareNest catalogue: solid wood beds, wardrobes, dining tables, sofas, and more. Made in Patna. Delivered across India.",
+  alternates: { canonical: "/shop" },
+  keywords: [
+    "buy furniture online India",
+    "solid wood furniture",
+    "MDF wardrobe",
+    "sheesham bed",
+    "dining table Patna",
+    "sofa India",
+    "furniture studio Patna",
+  ],
+  openGraph: {
+    title: "Shop — BareNest",
+    description:
+      "Solid wood and MDF furniture, hand-made in Patna. The full catalogue.",
+    url: "/shop",
+    type: "website",
+  },
 };
 
 type SP = Promise<{ cat?: string; material?: string }>;

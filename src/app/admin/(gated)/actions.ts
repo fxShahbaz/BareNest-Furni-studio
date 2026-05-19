@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { isCurrentUserOwner } from "@/lib/queries/admin";
+import { optimizeImage } from "@/lib/image-optimize";
 
 async function requireOwner() {
   const ok = await isCurrentUserOwner();
@@ -24,6 +25,9 @@ export async function updateOrderStatus(formData: FormData) {
     .eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/orders");
+  // A confirmed/fulfilled order should appear in the invoices
+  // "Awaiting generation" list immediately.
+  revalidatePath("/admin/invoices");
 }
 
 export type ProductFormState = { error?: string } | undefined;
@@ -301,6 +305,10 @@ export async function createManualOrder(
     const address = String(formData.get("customer_address") ?? "").trim();
     const city = String(formData.get("customer_city") ?? "").trim();
     const pincode = String(formData.get("customer_pincode") ?? "").trim();
+    const gstinRaw = String(formData.get("customer_gstin") ?? "")
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, "");
     const notes = String(formData.get("notes") ?? "").trim() || null;
 
     if (!name || !phone || !address || !city || !pincode) {
@@ -308,6 +316,16 @@ export async function createManualOrder(
         error: "Customer name, phone, address, city, and pincode are required.",
       };
     }
+    if (
+      gstinRaw &&
+      !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]Z[0-9A-Z]$/.test(gstinRaw)
+    ) {
+      return {
+        error:
+          "GSTIN looks invalid. Format should be 15 characters, e.g. 10ABCDE1234F1Z5. Leave blank to skip.",
+      };
+    }
+    const customer_gstin = gstinRaw || null;
 
     let items: ManualOrderItem[];
     try {
@@ -330,20 +348,28 @@ export async function createManualOrder(
     const slugs = items.map((i) => i.slug);
     const { data: catalog, error: catalogErr } = await admin
       .from("products")
-      .select("slug,name,material,price")
+      .select("slug,name,material,price,gst_rate,tax_inclusive,hsn_code")
       .in("slug", slugs);
     if (catalogErr) return { error: catalogErr.message };
 
+    type CatalogRow = {
+      slug: string;
+      name: string;
+      material: string;
+      price: number;
+      gst_rate: number | null;
+      tax_inclusive: boolean | null;
+      hsn_code: string | null;
+    };
     const bySlug = new Map(
-      (catalog ?? []).map((p) => [
-        p.slug as string,
-        p as { slug: string; name: string; material: string; price: number },
-      ])
+      (catalog ?? []).map((p) => [p.slug as string, p as CatalogRow])
     );
     if (bySlug.size !== items.length) {
       return { error: "One or more items are no longer in the catalogue." };
     }
 
+    // Snapshot tax fields onto each line so a later product edit can't
+    // mutate the invoice this order eventually prints.
     const verifiedItems = items.map((i) => {
       const p = bySlug.get(i.slug)!;
       return {
@@ -352,6 +378,9 @@ export async function createManualOrder(
         material: p.material,
         price: p.price,
         qty: i.qty,
+        gst_rate: p.gst_rate ?? 18,
+        tax_inclusive: p.tax_inclusive ?? true,
+        hsn_code: p.hsn_code ?? null,
       };
     });
     const total = verifiedItems.reduce((acc, i) => acc + i.price * i.qty, 0);
@@ -364,6 +393,7 @@ export async function createManualOrder(
       customer_address: customerAddress,
       customer_city: city,
       customer_pincode: pincode,
+      customer_gstin,
       notes,
       items: verifiedItems,
       total,
@@ -390,19 +420,161 @@ export async function deleteSubscriber(formData: FormData) {
   revalidatePath("/admin");
 }
 
+const ENQUIRY_STATUSES = [
+  "new",
+  "contacted",
+  "converted",
+  "closed",
+  "cancelled",
+] as const;
+
+export async function updateEnquiryStatus(formData: FormData) {
+  await requireOwner();
+  const id = String(formData.get("id") ?? "").trim();
+  const status = String(formData.get("status") ?? "").trim();
+  if (!id) throw new Error("Missing enquiry id.");
+  if (!ENQUIRY_STATUSES.includes(status as (typeof ENQUIRY_STATUSES)[number])) {
+    throw new Error("Invalid status.");
+  }
+
+  const admin = supabaseAdmin();
+  const { error } = await admin
+    .from("enquiries")
+    .update({ status })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/enquiries");
+}
+
+export async function convertEnquiryToOrder(formData: FormData) {
+  await requireOwner();
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) throw new Error("Missing enquiry id.");
+
+  const admin = supabaseAdmin();
+  const { data: enquiry, error: readErr } = await admin
+    .from("enquiries")
+    .select(
+      "id,product_slug,product_name,product_material,product_price,qty,customer_name,customer_phone,customer_email,message,status,converted_order_id"
+    )
+    .eq("id", id)
+    .maybeSingle();
+  if (readErr || !enquiry) {
+    throw new Error(readErr?.message ?? "Enquiry not found.");
+  }
+  if (enquiry.converted_order_id) {
+    // Already converted — just bounce to the existing order.
+    redirect(`/admin/orders`);
+  }
+
+  // Re-verify the product still exists + use current price.
+  const { data: product, error: productErr } = await admin
+    .from("products")
+    .select("slug,name,material,price")
+    .eq("slug", enquiry.product_slug)
+    .maybeSingle();
+  if (productErr) throw new Error(productErr.message);
+  if (!product) {
+    throw new Error(
+      "Product is no longer in the catalogue. Restore it or update the enquiry manually."
+    );
+  }
+
+  const item = {
+    slug: product.slug,
+    name: product.name,
+    material: product.material,
+    price: product.price,
+    qty: enquiry.qty as number,
+  };
+  const total = item.price * item.qty;
+
+  const orderId = crypto.randomUUID();
+  const { error: insertErr } = await admin.from("orders").insert({
+    id: orderId,
+    customer_name: enquiry.customer_name,
+    customer_phone: enquiry.customer_phone,
+    customer_email: enquiry.customer_email,
+    customer_address: "—",
+    notes: enquiry.message
+      ? `Converted from enquiry. Notes: ${enquiry.message}`
+      : "Converted from enquiry.",
+    items: [item],
+    total,
+    status: "confirmed",
+    source: "manual",
+  });
+  if (insertErr) throw new Error(insertErr.message);
+
+  const { error: updateErr } = await admin
+    .from("enquiries")
+    .update({ status: "converted", converted_order_id: orderId })
+    .eq("id", id);
+  if (updateErr) throw new Error(updateErr.message);
+
+  revalidatePath("/admin/enquiries");
+  revalidatePath("/admin/orders");
+  redirect("/admin/orders");
+}
+
+export async function deleteEnquiry(formData: FormData) {
+  await requireOwner();
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) throw new Error("Missing enquiry id.");
+  const admin = supabaseAdmin();
+  const { error } = await admin.from("enquiries").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/enquiries");
+}
+
+export async function updateSettings(formData: FormData) {
+  await requireOwner();
+  // Checkboxes only POST when checked. Cast on presence, not value, so the
+  // missing-key case (unchecked) flips the flag off rather than no-oping.
+  const onlineOrderingEnabled =
+    formData.get("online_ordering_enabled") !== null;
+
+  const admin = supabaseAdmin();
+  const { error } = await admin
+    .from("settings")
+    .update({
+      online_ordering_enabled: onlineOrderingEnabled,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", 1);
+  if (error) throw new Error(error.message);
+
+  // Refresh anywhere that branches on this flag.
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/settings");
+}
+
 export async function uploadProductImage(formData: FormData) {
   await requireOwner();
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {
     throw new Error("No file.");
   }
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-  const path = `${Date.now()}_${safeName}`;
+
+  // Optimize before write. Product photos are rendered at large sizes
+  // (hero, gallery), so we allow a generous max dimension. WebP gives
+  // ~30–50% smaller files than JPEG at the same quality.
+  const optimized = await optimizeImage(file, {
+    maxDimension: 2400,
+    quality: 84,
+    format: "webp",
+  });
+  const baseName = file.name
+    .replace(/\.[a-zA-Z0-9]+$/, "")
+    .replace(/[^a-zA-Z0-9._-]/g, "_");
+  const path = `${Date.now()}_${baseName}${optimized.extension}`;
+
   const admin = supabaseAdmin();
   const { error } = await admin.storage
     .from("product-images")
-    .upload(path, Buffer.from(await file.arrayBuffer()), {
-      contentType: file.type || "application/octet-stream",
+    .upload(path, optimized.buffer, {
+      contentType: optimized.contentType,
       upsert: false,
     });
   if (error) throw new Error(error.message);

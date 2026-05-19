@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -25,6 +25,7 @@ import { formatINR } from "@/lib/utils";
 import { updateOrderStatus } from "@/app/admin/(gated)/actions";
 import ConfirmDialog from "@/components/admin/confirm-dialog";
 import AdminHeaderActions from "@/components/admin/admin-header-actions";
+import Pagination from "@/components/admin/pagination";
 
 export type OrderItem = {
   slug: string;
@@ -40,6 +41,7 @@ export type OrderRow = {
   customer_phone: string;
   customer_email: string | null;
   customer_address: string;
+  customer_gstin: string | null;
   notes: string | null;
   items: OrderItem[];
   total: number;
@@ -177,6 +179,8 @@ export default function OrdersManager({ orders }: { orders: OrderRow[] }) {
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [pending, setPending] = useState<PendingAction | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
   const stats = useMemo(() => {
     const counts: Record<StatusKey, number> = {
@@ -242,6 +246,16 @@ export default function OrdersManager({ orders }: { orders: OrderRow[] }) {
     }
     return sorted;
   }, [orders, query, filter, sourceFilter, sort, dateRange]);
+
+  // Reset to page 1 whenever the filtered set changes.
+  useEffect(() => {
+    setPage(1);
+  }, [query, filter, sourceFilter, sort, dateRange]);
+
+  const paged = useMemo(
+    () => visible.slice((page - 1) * pageSize, page * pageSize),
+    [visible, page, pageSize]
+  );
 
   const pillFor = (key: Filter) => {
     const active = filter === key;
@@ -489,7 +503,7 @@ export default function OrdersManager({ orders }: { orders: OrderRow[] }) {
 
       {/* Cards */}
       <div className="mt-6 space-y-4">
-        {visible.map((o) => {
+        {paged.map((o) => {
           const ref = o.id.slice(0, 8).toUpperCase();
           const status = (STATUS_KEYS.includes(o.status as StatusKey)
             ? o.status
@@ -502,9 +516,9 @@ export default function OrdersManager({ orders }: { orders: OrderRow[] }) {
           return (
             <article
               key={o.id}
-              className="rounded-3xl border border-ink/10 bg-cream/30 p-6"
+              className="rounded-3xl border border-ink/10 bg-cream/30 p-4 sm:p-6"
             >
-              <header className="flex flex-wrap items-start justify-between gap-4">
+              <header className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span
@@ -523,6 +537,15 @@ export default function OrdersManager({ orders }: { orders: OrderRow[] }) {
                     <span className="rounded-full bg-ink/5 px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-muted">
                       {ref}
                     </span>
+                    {o.customer_gstin && (
+                      <span
+                        className="inline-flex items-center gap-1 rounded-full bg-walnut/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-walnut"
+                        title={`Customer GSTIN: ${o.customer_gstin}`}
+                      >
+                        <Tag className="h-2.5 w-2.5" />
+                        B2B
+                      </span>
+                    )}
                   </div>
                   <p className="mt-1 text-xs text-muted">
                     {new Date(o.created_at).toLocaleString("en-IN", {
@@ -532,50 +555,51 @@ export default function OrdersManager({ orders }: { orders: OrderRow[] }) {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-1">
-                  <a
-                    href={`tel:${o.customer_phone}`}
-                    title={`Call ${o.customer_phone}`}
-                    className="rounded-full p-2 text-ink/60 hover:bg-ink/5 hover:text-ink"
-                  >
-                    <Phone className="h-4 w-4" />
-                  </a>
-                  <a
-                    href={`https://wa.me/${waNumber(o.customer_phone)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="WhatsApp"
-                    className="rounded-full p-2 text-ink/60 hover:bg-leaf/15 hover:text-leaf"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                  </a>
-                  {o.customer_email && (
+                <div className="flex w-full items-center justify-between gap-3 sm:w-auto">
+                  <div className="flex items-center gap-1">
                     <a
-                      href={`mailto:${o.customer_email}`}
-                      title={o.customer_email}
+                      href={`tel:${o.customer_phone}`}
+                      title={`Call ${o.customer_phone}`}
                       className="rounded-full p-2 text-ink/60 hover:bg-ink/5 hover:text-ink"
                     >
-                      <Mail className="h-4 w-4" />
+                      <Phone className="h-4 w-4" />
                     </a>
-                  )}
-                  <Link
-                    href={`/admin/invoices/${o.id}`}
-                    title={
-                      o.invoice_number
-                        ? `View invoice ${o.invoice_number}`
-                        : "Generate invoice"
-                    }
-                    className={`rounded-full p-2 transition-colors ${
-                      o.invoice_number
-                        ? "text-leaf hover:bg-leaf/15"
-                        : "text-ink/60 hover:bg-ink/5 hover:text-ink"
-                    }`}
-                  >
-                    <FileText className="h-4 w-4" />
-                  </Link>
+                    <a
+                      href={`https://wa.me/${waNumber(o.customer_phone)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="WhatsApp"
+                      className="rounded-full p-2 text-ink/60 hover:bg-leaf/15 hover:text-leaf"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </a>
+                    {o.customer_email && (
+                      <a
+                        href={`mailto:${o.customer_email}`}
+                        title={o.customer_email}
+                        className="rounded-full p-2 text-ink/60 hover:bg-ink/5 hover:text-ink"
+                      >
+                        <Mail className="h-4 w-4" />
+                      </a>
+                    )}
+                    <Link
+                      href={`/admin/invoices/${o.id}`}
+                      title={
+                        o.invoice_number
+                          ? `View invoice ${o.invoice_number}`
+                          : "Generate invoice"
+                      }
+                      className={`rounded-full p-2 transition-colors ${
+                        o.invoice_number
+                          ? "text-leaf hover:bg-leaf/15"
+                          : "text-ink/60 hover:bg-ink/5 hover:text-ink"
+                      }`}
+                    >
+                      <FileText className="h-4 w-4" />
+                    </Link>
+                  </div>
+                  <span className="font-display text-xl">{formatINR(o.total)}</span>
                 </div>
-
-                <span className="font-display text-xl">{formatINR(o.total)}</span>
               </header>
 
               <div className="mt-4 grid gap-1 text-sm">
@@ -637,12 +661,12 @@ export default function OrdersManager({ orders }: { orders: OrderRow[] }) {
                 </div>
               )}
 
-              <footer className="mt-5 flex flex-wrap items-center gap-2 border-t border-ink/10 pt-4">
+              <footer className="mt-5 flex flex-col gap-2 border-t border-ink/10 pt-4 sm:flex-row sm:flex-wrap sm:items-center">
                 {fwd && (
                   <button
                     type="button"
                     onClick={() => queueTransition(o, fwd)}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-xs text-bone hover:bg-bark"
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-ink px-4 py-2.5 text-xs text-bone hover:bg-bark sm:w-auto sm:py-2"
                   >
                     <fwd.icon className="h-3.5 w-3.5" />
                     {fwd.label}
@@ -652,7 +676,7 @@ export default function OrdersManager({ orders }: { orders: OrderRow[] }) {
                   <button
                     type="button"
                     onClick={() => queueTransition(o, rec)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-ink/15 px-4 py-2 text-xs hover:bg-ink/5"
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-ink/15 px-4 py-2.5 text-xs hover:bg-ink/5 sm:w-auto sm:py-2"
                   >
                     <rec.icon className="h-3.5 w-3.5" />
                     {rec.label}
@@ -662,7 +686,7 @@ export default function OrdersManager({ orders }: { orders: OrderRow[] }) {
                   <button
                     type="button"
                     onClick={() => queueCancel(o)}
-                    className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-ink/15 px-4 py-2 text-xs text-rust hover:bg-rust/10"
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-ink/15 px-4 py-2.5 text-xs text-rust hover:bg-rust/10 sm:ml-auto sm:w-auto sm:py-2"
                   >
                     <XCircle className="h-3.5 w-3.5" />
                     Cancel order
@@ -681,6 +705,18 @@ export default function OrdersManager({ orders }: { orders: OrderRow[] }) {
           </div>
         )}
       </div>
+
+      <Pagination
+        total={visible.length}
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={(n) => {
+          setPageSize(n);
+          setPage(1);
+        }}
+        label="orders"
+      />
 
       <ConfirmDialog
         open={!!pending}

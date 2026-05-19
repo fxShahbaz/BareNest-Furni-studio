@@ -93,6 +93,42 @@ html.lenis body {
   scrollbar-width: none;
 }
 
+/* Native <dialog> centering.
+   Tailwind v4 preflight's `* { margin: 0 }` zeroes the user-agent's
+   `margin: auto` that modal dialogs rely on for centering. Without this
+   rule every <dialog open> sticks to the top-left. Scope to :modal so
+   non-modal popovers keep their natural positioning. */
+dialog:modal {
+  margin: auto;
+}
+
+/* skeleton shimmer */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+.bn-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(246, 243, 236, 0.7) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bn-shimmer {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
 /* simple marquee */
 @keyframes marquee {
   from {
