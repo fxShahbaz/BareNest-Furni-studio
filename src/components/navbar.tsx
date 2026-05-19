@@ -1,0 +1,275 @@
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { ArrowUpRight, ShoppingBag, Menu, X } from "lucide-react";
+import { useCart } from "@/store/cart";
+import { cn } from "@/lib/utils";
+import AuthChip from "@/components/auth-chip";
+
+function BrandMark({ size = "md" }: { size?: "sm" | "md" }) {
+  const h = size === "sm" ? "h-9" : "h-10";
+  return (
+    <span
+      className={cn(
+        "relative block aspect-square shrink-0 overflow-hidden rounded-xl bg-leaf/10 ring-1 ring-walnut/15 shadow-[0_2px_8px_-4px_rgba(20,17,14,0.15)] transition-transform group-hover:-translate-y-0.5",
+        h
+      )}
+    >
+      <Image
+        src="/logo-mark.png"
+        alt="BareNest"
+        fill
+        priority
+        sizes="48px"
+        className="scale-[1.45] object-contain mix-blend-multiply"
+      />
+    </span>
+  );
+}
+
+function BrandLockup({
+  size = "md",
+  onNavigate,
+}: {
+  size?: "sm" | "md";
+  onNavigate?: () => void;
+}) {
+  const wordSize = size === "sm" ? "text-[26px]" : "text-[28px]";
+  return (
+    <Link
+      href="/"
+      aria-label="BareNest — Furni Studio, home"
+      onClick={onNavigate}
+      className="group flex items-center gap-2.5"
+    >
+      <BrandMark size={size} />
+      <span className="flex flex-col leading-none">
+        <span
+          className={cn(
+            "font-wordmark leading-none tracking-tight",
+            wordSize
+          )}
+        >
+          <span className="text-walnut">bare</span>
+          <span className="ml-1 text-leaf">nest</span>
+        </span>
+        <span className="mt-1 text-[9px] uppercase tracking-[0.22em] text-muted">
+          Furni Studio · Patna
+        </span>
+      </span>
+    </Link>
+  );
+}
+
+const NAV = [
+  { href: "/shop", label: "Shop", caption: "The first catalogue" },
+  { href: "/collections", label: "Collections", caption: "Curated by room" },
+  { href: "/story", label: "Story", caption: "Why we won't use particle board" },
+  { href: "/showroom", label: "Showroom", caption: "Visit us in Patna" },
+];
+
+export default function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
+  const count = useCart((s) => s.items.reduce((a, b) => a + b.qty, 0));
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const prev = document.body.style.overflow;
+    if (open) {
+      document.body.style.overflow = "hidden";
+      window.__lenis?.stop();
+    } else {
+      window.__lenis?.start();
+    }
+    return () => {
+      document.body.style.overflow = prev;
+      window.__lenis?.start();
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  return (
+    <>
+      <header
+        className={cn(
+          "fixed inset-x-0 top-0 z-40 transition-all duration-500",
+          // Border is always rendered as 1px to avoid a dark flash on
+          // scroll (transition-all would otherwise tween border-width from
+          // 0→1px while border-color was still defaulting to currentColor).
+          // We only animate the border *color* and the background.
+          "border-b",
+          scrolled
+            ? "backdrop-blur-md bg-bone/75 border-ink/5"
+            : "bg-transparent border-transparent"
+        )}
+      >
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-4 md:px-10">
+        <BrandLockup />
+
+
+        <nav className="hidden items-center gap-8 md:flex">
+          {NAV.map((n) => (
+            <Link
+              key={n.href}
+              href={n.href}
+              className="text-sm text-ink/80 transition-colors hover:text-ink"
+            >
+              {n.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-3">
+          <AuthChip />
+          <Link
+            href="/cart"
+            aria-label="Cart"
+            className="relative grid h-10 w-10 place-items-center rounded-full border border-ink/10 hover:bg-ink/5"
+          >
+            <ShoppingBag className="h-4 w-4" />
+            {count > 0 && (
+              <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-rust px-1 text-[10px] font-medium text-bone">
+                {count}
+              </span>
+            )}
+          </Link>
+          <Link
+            href="/showroom"
+            className="hidden items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm text-bone transition-transform hover:-translate-y-0.5 md:inline-flex"
+          >
+            Visit showroom
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </Link>
+          <button
+            type="button"
+            aria-label="Menu"
+            onClick={() => setOpen(true)}
+            className="grid h-10 w-10 place-items-center rounded-full border border-ink/10 md:hidden"
+          >
+            <Menu className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+      </header>
+
+      {/* Mobile drawer — rendered outside the header so the header's
+          backdrop-filter doesn't trap its fixed positioning. */}
+      <div
+        aria-hidden={!open}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Site menu"
+        className={cn(
+          "fixed inset-0 z-[60] flex flex-col bg-bone transition-transform duration-500 md:hidden",
+          open ? "translate-y-0" : "-translate-y-full pointer-events-none"
+        )}
+      >
+        {/* Drawer header — mirrors the site header for continuity */}
+        <div className="flex items-center justify-between px-6 py-4">
+          <BrandLockup size="sm" onNavigate={() => setOpen(false)} />
+          <button
+            type="button"
+            aria-label="Close menu"
+            onClick={() => setOpen(false)}
+            className="grid h-10 w-10 place-items-center rounded-full border border-ink/10 transition-colors hover:bg-ink/5 active:scale-95"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Launch eyebrow */}
+        <div className="flex items-center gap-2 px-6 pt-3">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rust opacity-60" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-rust" />
+          </span>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted">
+            Inaugurating 18 June 2026 · Patna
+          </p>
+        </div>
+
+        {/* Nav body */}
+        <nav className="flex flex-1 flex-col px-6 pt-8">
+          {NAV.map((n, i) => (
+            <Link
+              key={n.href}
+              href={n.href}
+              onClick={() => setOpen(false)}
+              className={cn(
+                "group flex items-center justify-between gap-4 border-t border-ink/10 py-4 transition-all",
+                "first:border-t-0 active:translate-x-1",
+                "data-[open=true]:translate-y-0 data-[open=true]:opacity-100"
+              )}
+              data-open={open}
+              style={{
+                transitionDelay: open ? `${120 + i * 70}ms` : "0ms",
+                transform: open ? undefined : "translateY(12px)",
+                opacity: open ? undefined : 0,
+              }}
+            >
+              <span className="flex items-baseline gap-4">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-muted">
+                  0{i + 1}
+                </span>
+                <span className="flex flex-col">
+                  <span className="font-display text-4xl leading-none">
+                    {n.label}
+                  </span>
+                  <span className="mt-1.5 text-[11px] uppercase tracking-[0.18em] text-muted">
+                    {n.caption}
+                  </span>
+                </span>
+              </span>
+              <ArrowUpRight className="h-5 w-5 shrink-0 text-ink/40 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-ink" />
+            </Link>
+          ))}
+        </nav>
+
+        {/* Footer actions */}
+        <div className="border-t border-ink/10 px-6 pb-[max(env(safe-area-inset-bottom),1.5rem)] pt-5">
+          <Link
+            href="/showroom"
+            onClick={() => setOpen(false)}
+            className="group flex items-center justify-between rounded-full bg-ink px-5 py-3.5 text-sm text-bone transition-transform active:scale-[0.98]"
+          >
+            Visit the showroom
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-bone text-ink transition-transform group-hover:translate-x-0.5">
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </span>
+          </Link>
+          <div className="mt-5 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-muted">
+            <Link
+              href="/cart"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 text-ink"
+            >
+              <ShoppingBag className="h-4 w-4" />
+              <span>
+                Cart{count > 0 ? ` · ${count}` : ""}
+              </span>
+            </Link>
+            <span>Studio · Patna</span>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

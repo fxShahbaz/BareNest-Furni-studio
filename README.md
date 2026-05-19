@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BareNest — Bare Nest Furni Studio
 
-## Getting Started
+The website for BareNest, a furniture studio founded by Gaurav Bahri.
+Showroom inauguration: **18 June 2026.**
 
-First, run the development server:
+Built with Next.js (App Router) + TypeScript, Tailwind 4, GSAP + Lenis for
+motion, Supabase for orders, and Zustand for the cart.
+
+## Stack
+
+- **Framework:** Next.js App Router (React 19, React Compiler)
+- **Styling:** Tailwind CSS 4 (`@theme inline` tokens in `globals.css`)
+- **Motion:** Lenis (smooth scroll) + GSAP (scroll-linked timelines)
+- **Data:** Supabase (`@supabase/ssr`) — products mirror + orders
+- **Cart:** Zustand with `persist` to localStorage
+- **Fonts:** Fraunces (display) + Inter (body)
+
+## Run locally
 
 ```bash
+npm install
+cp .env.example .env.local      # then fill in your Supabase URL + anon key
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Supabase setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Create a project at <https://supabase.com>.
+2. Settings → API: copy the URL and the **anon** key into `.env.local`.
+3. SQL editor → paste `supabase/schema.sql` and run.
 
-## Learn More
+Orders are inserted from the browser at checkout (RLS allows anon inserts).
+If env vars are missing, the checkout silently skips the insert and still
+hands off to WhatsApp — useful for the v1 launch.
 
-To learn more about Next.js, take a look at the following resources:
+## Routes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Path              | What it is                                                  |
+| ----------------- | ----------------------------------------------------------- |
+| `/`               | Landing: hero, marquee, materials, categories, featured, founder, furnishings, countdown |
+| `/shop`           | Catalogue with `?cat=` and `?material=` filters             |
+| `/shop/[slug]`    | Product detail + add to cart                                |
+| `/cart`           | Cart with qty controls                                      |
+| `/checkout`       | Form → saves to Supabase + opens prefilled WhatsApp         |
+| `/story`          | Founder + materials philosophy                              |
+| `/showroom`       | Inauguration info, preview reservations                     |
+| `/collections`    | Curated room sets                                           |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Product catalogue
 
-## Deploy on Vercel
+Products live in `src/lib/products.ts`. To migrate to Supabase as the source
+of truth, mirror the `Product` shape in the `products` table and swap the
+import for a server fetch.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Materials policy
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Solid wood + dense MDF only.** Particle board is refused on principle.
+This rule is the brand's positioning — see `src/components/sections/materials.tsx`
+and `src/app/story/page.tsx`.
