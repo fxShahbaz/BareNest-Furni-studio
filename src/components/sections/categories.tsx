@@ -121,80 +121,110 @@ export default function Categories() {
     return () => section.removeEventListener("wheel", onWheel);
   }, []);
 
-  // Pointer-driven swipe. We lock to an axis after a small threshold:
+  // Pointer-driven swipe. Bound to the DOM node via native listeners (not
+  // React synthetic events) so touch updates land on the same frame on
+  // mobile. We lock to an axis after a small threshold:
   //   • horizontal → mutate dragOffset directly (instant visual), commit to
-  //     scrollY on release so the section continues to advance naturally.
-  //   • vertical → forward to page scroll so users can still exit the pinned
+  //     scrollY on release so the section progress sticks.
+  //   • vertical → forward to page scroll so users can exit the pinned
   //     section by dragging up/down on the track.
-  const dragState = useRef<{
+  const dragRef = useRef<{
+    pointerId: number;
     startX: number;
     startY: number;
     startScrollY: number;
     axis: "x" | "y" | null;
     moved: number;
   } | null>(null);
+  const recentlyMovedRef = useRef(0);
 
-  const setScroll = (y: number) => {
-    const lenis = (window as unknown as { __lenis?: { scrollTo: (y: number, o?: { immediate?: boolean }) => void } }).__lenis;
-    if (lenis) lenis.scrollTo(y, { immediate: true });
-    else window.scrollTo({ top: y, behavior: "auto" });
-  };
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
 
-  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType === "mouse" && e.button !== 0) return;
-    dragState.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      startScrollY: window.scrollY,
-      axis: null,
-      moved: 0,
+    const setScroll = (y: number) => {
+      const lenis = (window as unknown as { __lenis?: { scrollTo: (y: number, o?: { immediate?: boolean }) => void } }).__lenis;
+      if (lenis) lenis.scrollTo(y, { immediate: true });
+      else window.scrollTo({ top: y, behavior: "auto" });
     };
-    e.currentTarget.setPointerCapture?.(e.pointerId);
-  };
 
-  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    const st = dragState.current;
-    if (!st) return;
-    const dx = e.clientX - st.startX;
-    const dy = e.clientY - st.startY;
-    st.moved = Math.max(st.moved, Math.abs(dx) + Math.abs(dy));
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      dragRef.current = {
+        pointerId: e.pointerId,
+        startX: e.clientX,
+        startY: e.clientY,
+        startScrollY: window.scrollY,
+        axis: null,
+        moved: 0,
+      };
+      track.setPointerCapture?.(e.pointerId);
+      track.style.willChange = "transform";
+    };
 
-    if (!st.axis) {
-      if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
-      st.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
-    }
+    const onMove = (e: PointerEvent) => {
+      const st = dragRef.current;
+      if (!st || e.pointerId !== st.pointerId) return;
+      const dx = e.clientX - st.startX;
+      const dy = e.clientY - st.startY;
+      st.moved = Math.max(st.moved, Math.abs(dx) + Math.abs(dy));
 
-    if (st.axis === "x") {
-      dragOffset.set(dx);
-    } else {
-      setScroll(st.startScrollY - dy);
-    }
-  };
+      if (!st.axis) {
+        if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+        st.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+      }
 
-  const endPointer = (e: React.PointerEvent<HTMLDivElement>) => {
-    const st = dragState.current;
-    if (!st) return;
-    e.currentTarget.releasePointerCapture?.(e.pointerId);
+      if (st.axis === "x") {
+        e.preventDefault();
+        dragOffset.set(dx);
+      } else {
+        setScroll(st.startScrollY - dy);
+      }
+    };
 
-    if (st.axis === "x") {
-      const off = dragOffset.get();
-      // Commit the drag distance to scrollY so the section's progress sticks
-      // where the finger left it. Reset the offset on the next frame, after
-      // scrollX has caught up — otherwise we'd see a one-frame jump.
-      setScroll(st.startScrollY - off);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => dragOffset.set(0));
-      });
-    }
+    const onUp = (e: PointerEvent) => {
+      const st = dragRef.current;
+      if (!st || e.pointerId !== st.pointerId) return;
+      track.releasePointerCapture?.(e.pointerId);
 
-    // Defer clear so the synthetic click can still read `moved`.
-    requestAnimationFrame(() => {
-      dragState.current = null;
-    });
-  };
+      if (st.axis === "x") {
+        const off = dragOffset.get();
+        setScroll(st.startScrollY - off);
+        // Wait two frames so scrollX has caught up before clearing the
+        // offset — otherwise we'd see a one-frame visual snap.
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            dragOffset.set(0);
+            track.style.willChange = "";
+          });
+        });
+      } else {
+        track.style.willChange = "";
+      }
+
+      recentlyMovedRef.current = st.moved;
+      dragRef.current = null;
+      // Clear the click-suppression flag shortly after the click would fire.
+      setTimeout(() => {
+        recentlyMovedRef.current = 0;
+      }, 300);
+    };
+
+    track.addEventListener("pointerdown", onDown);
+    track.addEventListener("pointermove", onMove, { passive: false });
+    track.addEventListener("pointerup", onUp);
+    track.addEventListener("pointercancel", onUp);
+
+    return () => {
+      track.removeEventListener("pointerdown", onDown);
+      track.removeEventListener("pointermove", onMove);
+      track.removeEventListener("pointerup", onUp);
+      track.removeEventListener("pointercancel", onUp);
+    };
+  }, [dragOffset]);
 
   const onClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (dragState.current && dragState.current.moved > 6) {
+    if (recentlyMovedRef.current > 6) {
       e.preventDefault();
       e.stopPropagation();
     }
@@ -227,10 +257,6 @@ export default function Categories() {
         <motion.div
           ref={trackRef}
           style={{ x, touchAction: "none" }}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={endPointer}
-          onPointerCancel={endPointer}
           onClickCapture={onClickCapture}
           className="mt-auto flex cursor-grab select-none gap-4 px-6 pb-10 active:cursor-grabbing sm:gap-6 md:gap-8 md:px-10 md:pb-16"
         >
