@@ -161,7 +161,7 @@ export default function Hero() {
             className="absolute inset-0 overflow-hidden rounded-[2rem] shadow-[0_30px_80px_-30px_rgba(20,17,14,0.35)] md:rounded-[2.25rem]"
           >
             <Image
-              src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=1400&q=85"
+              src="https://images.unsplash.com/photo-1487015307662-6ce6210680f1?auto=format&fit=crop&w=1400&q=85"
               alt="An elegant interior — warm wood, soft daylight"
               fill
               priority

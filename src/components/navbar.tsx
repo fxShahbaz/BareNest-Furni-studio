@@ -129,6 +129,20 @@ export default function Navbar({
             : "bg-transparent border-transparent"
         )}
       >
+        {!onlineOrderingEnabled && (
+          <div className="bg-walnut text-bone">
+            <p className="mx-auto max-w-[1400px] px-6 py-1.5 text-center text-[11px] leading-tight tracking-wide md:px-10 md:text-xs">
+              We&apos;re not delivering right now — browse the catalogue and{" "}
+              <Link
+                href="/contact"
+                className="font-medium underline underline-offset-2 decoration-bone/60 hover:decoration-bone"
+              >
+                send us an enquiry
+              </Link>
+              .
+            </p>
+          </div>
+        )}
         <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-4 md:px-10">
         <BrandLockup />
 
