@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -14,6 +15,24 @@ import {
   YAxis,
 } from "recharts";
 import { formatINR } from "@/lib/utils";
+
+/**
+ * Recharts' ResponsiveContainer measures via ResizeObserver, which fires
+ * with -1 × -1 on first paint under React 19 + Turbopack. Wait for mount
+ * before rendering so the parent has finalised layout. Keeps the slot's
+ * height reserved so the page doesn't jump on hydration.
+ */
+function ChartFrame({
+  className,
+  children,
+}: {
+  className: string;
+  children: React.ReactNode;
+}) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return <div className={className}>{mounted ? children : null}</div>;
+}
 import type {
   MaterialSlice,
   RevenueDay,
@@ -106,7 +125,7 @@ export function RevenueAreaChart({ data }: { data: RevenueDay[] }) {
     );
   }
   return (
-    <div className="h-[260px] w-full">
+    <ChartFrame className="h-[260px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}
@@ -164,7 +183,7 @@ export function RevenueAreaChart({ data }: { data: RevenueDay[] }) {
           />
         </AreaChart>
       </ResponsiveContainer>
-    </div>
+    </ChartFrame>
   );
 }
 
@@ -188,7 +207,7 @@ export function OrdersStatusDonut({ data }: { data: StatusBucket[] }) {
 
   return (
     <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-2">
-      <div className="relative h-[200px]">
+      <ChartFrame className="relative h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -221,7 +240,7 @@ export function OrdersStatusDonut({ data }: { data: StatusBucket[] }) {
             Orders
           </span>
         </div>
-      </div>
+      </ChartFrame>
       <ul className="space-y-2 text-sm">
         {chartData.map((d) => {
           const pct = ((d.value / total) * 100).toFixed(0);
@@ -256,7 +275,7 @@ export function TopProductsBars({ data }: { data: TopProduct[] }) {
     );
   }
   return (
-    <div className="h-[260px] w-full">
+    <ChartFrame className="h-[260px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
@@ -293,7 +312,7 @@ export function TopProductsBars({ data }: { data: TopProduct[] }) {
           />
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </ChartFrame>
   );
 }
 
@@ -314,7 +333,7 @@ export function MaterialMixDonut({ data }: { data: MaterialSlice[] }) {
 
   return (
     <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-2">
-      <div className="relative h-[200px]">
+      <ChartFrame className="relative h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -350,7 +369,7 @@ export function MaterialMixDonut({ data }: { data: MaterialSlice[] }) {
             Revenue
           </span>
         </div>
-      </div>
+      </ChartFrame>
       <ul className="space-y-2 text-sm">
         {chartData.map((d) => {
           const pct = ((d.value / total) * 100).toFixed(0);
