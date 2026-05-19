@@ -19,7 +19,7 @@ height requirement) or **stock furniture doesn't have what you need**
 hardware in a specific finish).
 
 In both cases, custom-made furniture in India is more accessible than
-most people realise — and at BareNest we do it routinely. The myth that
+most people realise — and at bare nest we do it routinely. The myth that
 custom is wildly expensive comes from the few showrooms that charge a 3-4x
 premium for "designer pieces" that are essentially stock items with a
 fabric change.

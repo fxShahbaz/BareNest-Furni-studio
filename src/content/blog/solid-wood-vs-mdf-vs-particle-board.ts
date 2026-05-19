@@ -164,7 +164,7 @@ board into a landfill, **the cheapest furniture is the most expensive over
 a decade**. Solid wood, despite the heart-attack sticker price, comes out
 cheapest per year of use.
 
-## What we stock at BareNest
+## What we stock at bare nest
 
 [We sell two materials and refuse one](/materials). Our solid wood line uses
 seasoned sheesham, mango, and selected teak — sourced from suppliers we

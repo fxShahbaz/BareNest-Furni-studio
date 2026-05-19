@@ -200,6 +200,10 @@ export default async function AdminDashboard() {
             delta={d.customers7dDelta}
             deltaLabel="new in last 7d"
           />
+          <BuyerSplit
+            newBuyers={d.newBuyers}
+            returningBuyers={d.returningBuyers}
+          />
           <MiniStat
             href="/admin/subscribers"
             icon={<Mail className="h-4 w-4" />}
@@ -443,6 +447,68 @@ function MiniStat({
           {delta}
         </span>
       )}
+    </Link>
+  );
+}
+
+function BuyerSplit({
+  newBuyers,
+  returningBuyers,
+}: {
+  newBuyers: number;
+  returningBuyers: number;
+}) {
+  const total = newBuyers + returningBuyers;
+  const repeatPct = total > 0 ? Math.round((returningBuyers / total) * 100) : 0;
+  const newPct = total > 0 ? 100 - repeatPct : 0;
+  return (
+    <Link
+      href="/admin/customers"
+      className="block rounded-2xl border border-ink/10 bg-cream/40 p-4 hover:bg-cream/70"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[10px] uppercase tracking-[0.18em] text-muted">
+          Buyer mix
+        </p>
+        <p className="text-[10px] text-muted">{total} buyers</p>
+      </div>
+      <div className="mt-2.5 flex items-baseline justify-between gap-4">
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.18em] text-rust/80">
+            New
+          </p>
+          <p className="font-display text-xl leading-none tabular-nums">
+            {newBuyers}
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] uppercase tracking-[0.18em] text-leaf/80">
+            Returning
+          </p>
+          <p className="font-display text-xl leading-none tabular-nums">
+            {returningBuyers}
+          </p>
+        </div>
+      </div>
+      {/* Split bar */}
+      <div
+        className="mt-3 flex h-1.5 overflow-hidden rounded-full bg-ink/5"
+        role="img"
+        aria-label={`${newPct}% new, ${repeatPct}% returning`}
+      >
+        {total > 0 ? (
+          <>
+            <span
+              className="block h-full bg-rust"
+              style={{ width: `${newPct}%` }}
+            />
+            <span
+              className="block h-full bg-leaf"
+              style={{ width: `${repeatPct}%` }}
+            />
+          </>
+        ) : null}
+      </div>
     </Link>
   );
 }

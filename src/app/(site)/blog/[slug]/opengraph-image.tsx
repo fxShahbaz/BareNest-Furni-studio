@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { getPostBySlug, formatPostDate } from "@/lib/blog";
 import { SHOWROOM } from "@/lib/utils";
 
-export const alt = "BareNest blog post";
+export const alt = "bare nest blog post";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

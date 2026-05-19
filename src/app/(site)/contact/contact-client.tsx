@@ -22,7 +22,7 @@ const INTENTS: Intent[] = [
     blurb:
       "Help me pick the right piece for my room — sizing, finishes, lead time.",
     message:
-      "Hi BareNest, I'm thinking about a piece from your catalogue. Could you help me with sizing and lead time?",
+      "Hi bare nest, I'm thinking about a piece from your catalogue. Could you help me with sizing and lead time?",
   },
   {
     id: "custom",
@@ -30,7 +30,7 @@ const INTENTS: Intent[] = [
     blurb:
       "I'm an architect / designer / hotel — bulk pricing, custom dimensions, project quote.",
     message:
-      "Hi BareNest, I'd like to discuss a project (custom dimensions / trade rates). Here's a quick brief:",
+      "Hi bare nest, I'd like to discuss a project (custom dimensions / trade rates). Here's a quick brief:",
   },
   {
     id: "showroom",
@@ -38,7 +38,7 @@ const INTENTS: Intent[] = [
     blurb:
       "I want to walk in and see the catalogue, knock on the boards, ask anything.",
     message:
-      "Hi BareNest, I'd like to plan a visit to the showroom. When's a good time to come by?",
+      "Hi bare nest, I'd like to plan a visit to the showroom. When's a good time to come by?",
   },
   {
     id: "press",
@@ -46,7 +46,7 @@ const INTENTS: Intent[] = [
     blurb:
       "Feature requests, interviews, collaborations with the studio.",
     message:
-      "Hi BareNest, reaching out from [outlet/brand]. Could we set up a quick conversation?",
+      "Hi bare nest, reaching out from [outlet/brand]. Could we set up a quick conversation?",
   },
 ];
 
@@ -128,7 +128,7 @@ export default function ContactClient({
     composed
   )}`;
   const mailUrl = `mailto:${email}?subject=${encodeURIComponent(
-    `${activeIntent.label} — BareNest`
+    `${activeIntent.label} — bare nest`
   )}&body=${encodeURIComponent(composed)}`;
 
   const charCount = message.length;

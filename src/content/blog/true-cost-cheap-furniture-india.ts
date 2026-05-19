@@ -70,7 +70,7 @@ decade. We'll use mid-2026 Indian retail prices.
 - Total purchase cost over 10 years: ₹38,000 + ₹2,500 = **₹40,500**
 - **True cost: ₹40,500 over 10 years = ₹4,050/year**
 
-### Option C: ₹78,000 solid sheesham wardrobe (BareNest tier)
+### Option C: ₹78,000 solid sheesham wardrobe (bare nest tier)
 
 - Initial purchase: ₹78,000
 - Delivery + assembly + first polish: included
@@ -181,7 +181,7 @@ today even if it saves us money long term." Fair. Some options:
 
 - **No-cost EMI on credit card.** Most banks offer 6 to 12 months no-cost
   EMI on furniture purchases. You pay the same total, spread out.
-- **Half now, half on delivery.** Many studios (including BareNest) accept
+- **Half now, half on delivery.** Many studios (including bare nest) accept
   50% advance, 50% on installation. Frees up the cash flow.
 - **One room at a time.** Buy the most-used piece first (bed > wardrobe >
   sofa > dining). Other rooms can wait or use existing furniture.
@@ -202,7 +202,7 @@ Rental makes sense for **2-year placements** (city you'll move out of,
 furnished while you decide). It is a terrible idea for **anything over 4
 years**, regardless of how convenient the monthly payment feels.
 
-## The BareNest position, plainly
+## The bare nest position, plainly
 
 We don't sell particle board because we don't believe it deserves a place
 in an Indian bedroom. We sell solid wood and MDF at price points that

@@ -1,5 +1,6 @@
 import "server-only";
 import { supabaseServer } from "@/lib/supabase/server";
+import { memo } from "@/lib/cache/memo";
 
 export type Category = {
   slug: string;
@@ -7,14 +8,20 @@ export type Category = {
 };
 
 export async function getAllCategories(): Promise<Category[]> {
-  const supabase = await supabaseServer();
-  if (!supabase) return [];
+  return memo(
+    "categories:all",
+    async () => {
+      const supabase = await supabaseServer();
+      if (!supabase) return [];
 
-  const { data, error } = await supabase
-    .from("categories")
-    .select("slug,label")
-    .order("label", { ascending: true });
+      const { data, error } = await supabase
+        .from("categories")
+        .select("slug,label")
+        .order("label", { ascending: true });
 
-  if (error || !data) return [];
-  return data as Category[];
+      if (error || !data) return [];
+      return data as Category[];
+    },
+    { ttl: 120_000 } // categories change rarely
+  );
 }

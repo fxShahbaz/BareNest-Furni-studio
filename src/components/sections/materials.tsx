@@ -139,7 +139,7 @@ export default function Materials() {
             <p className="text-sm text-muted md:text-base">
               Almost every furniture shop you&apos;ll walk into sells particle
               board. It&apos;s the cheapest engineered wood there is, and it
-              shows within two years. BareNest is built on a stricter
+              shows within two years. bare nest is built on a stricter
               shortlist — honest MDF where it makes sense, and solid wood
               where it earns its price.
             </p>

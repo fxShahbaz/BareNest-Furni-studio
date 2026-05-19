@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { isCurrentUserOwner } from "@/lib/queries/admin";
 import { optimizeImage } from "@/lib/image-optimize";
+import { invalidateMemo } from "@/lib/cache/memo";
 
 async function requireOwner() {
   const ok = await isCurrentUserOwner();
@@ -80,6 +81,7 @@ export async function createProduct(
     const admin = supabaseAdmin();
     const { error } = await admin.from("products").insert(row);
     if (error) return { error: error.message };
+    invalidateMemo("products:");
     revalidatePath("/admin/products");
     revalidatePath("/shop");
   } catch (e) {
@@ -115,6 +117,7 @@ export async function updateProduct(
       })
       .eq("slug", row.slug);
     if (error) return { error: error.message };
+    invalidateMemo("products:");
     revalidatePath("/admin/products");
     revalidatePath(`/shop/${row.slug}`);
     revalidatePath("/shop");
@@ -130,6 +133,7 @@ export async function deleteProduct(formData: FormData) {
   const admin = supabaseAdmin();
   const { error } = await admin.from("products").delete().eq("slug", slug);
   if (error) throw new Error(error.message);
+  invalidateMemo("products:");
   revalidatePath("/admin/products");
   revalidatePath("/shop");
   redirect("/admin/products");
@@ -168,6 +172,7 @@ export async function duplicateProduct(formData: FormData) {
     .insert({ ...src, slug: newSlug, name: `${src.name} (Copy)` });
   if (insertErr) throw new Error(insertErr.message);
 
+  invalidateMemo("products:");
   revalidatePath("/admin/products");
   revalidatePath("/shop");
   redirect(`/admin/products/${newSlug}`);
@@ -236,6 +241,7 @@ export async function deleteCategory(formData: FormData) {
   // this slug will surface as an unlisted chip until reassigned.
   const { error } = await admin.from("categories").delete().eq("slug", slug);
   if (error) throw new Error(error.message);
+  invalidateMemo("categories:");
   revalidatePath("/admin/products");
   revalidatePath("/admin/products/new");
 }
@@ -258,6 +264,7 @@ export async function createCategory(
       .from("categories")
       .upsert({ slug, label }, { onConflict: "slug", ignoreDuplicates: true });
     if (error) return { error: error.message };
+    invalidateMemo("categories:");
     revalidatePath("/admin/products");
     revalidatePath("/admin/products/new");
   } catch (e) {
@@ -528,6 +535,35 @@ export async function deleteEnquiry(formData: FormData) {
   revalidatePath("/admin/enquiries");
 }
 
+const CHAT_STATUSES = ["new", "read", "replied", "closed"] as const;
+
+export async function updateChatMessageStatus(formData: FormData) {
+  await requireOwner();
+  const id = String(formData.get("id") ?? "").trim();
+  const status = String(formData.get("status") ?? "").trim();
+  if (!id) throw new Error("Missing message id.");
+  if (!CHAT_STATUSES.includes(status as (typeof CHAT_STATUSES)[number])) {
+    throw new Error("Invalid status.");
+  }
+  const admin = supabaseAdmin();
+  const { error } = await admin
+    .from("chat_messages")
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/messages");
+}
+
+export async function deleteChatMessage(formData: FormData) {
+  await requireOwner();
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) throw new Error("Missing message id.");
+  const admin = supabaseAdmin();
+  const { error } = await admin.from("chat_messages").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/messages");
+}
+
 export async function updateSettings(formData: FormData) {
   await requireOwner();
   // Checkboxes only POST when checked. Cast on presence, not value, so the
@@ -545,6 +581,7 @@ export async function updateSettings(formData: FormData) {
     .eq("id", 1);
   if (error) throw new Error(error.message);
 
+  invalidateMemo("settings");
   // Refresh anywhere that branches on this flag.
   revalidatePath("/", "layout");
   revalidatePath("/admin/settings");

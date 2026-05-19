@@ -248,7 +248,7 @@ The often-overlooked details:
 | Wall-built-in 8' wide, floor-to-ceiling | MDF + sheesham facing | 1,40,000-2,10,000 |
 | Wall-built-in 12' wide, full library | MDF + sheesham + lighting | 2,40,000-3,80,000 |
 
-## What we make at BareNest
+## What we make at bare nest
 
 Three bookshelves in the launch range:
 

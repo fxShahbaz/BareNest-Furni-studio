@@ -7,6 +7,7 @@ import {
   signInWithGoogle,
   type AuthState,
 } from "@/app/auth/actions";
+import { GoogleIcon } from "@/components/icons/google";
 
 export default function SignUpForm({ next }: { next: string }) {
   const [state, formAction] = useActionState<AuthState, FormData>(
@@ -20,11 +21,17 @@ export default function SignUpForm({ next }: { next: string }) {
         <input type="hidden" name="next" value={next} />
         <button
           type="submit"
-          className="w-full rounded-full border border-ink/20 bg-bone px-5 py-3 text-sm text-ink hover:bg-cream"
+          className="inline-flex w-full items-center justify-center gap-2.5 rounded-full border border-ink/20 bg-bone px-5 py-3 text-sm font-medium text-ink hover:bg-cream"
         >
+          <GoogleIcon className="h-4 w-4" />
           Continue with Google
         </button>
       </form>
+
+      <p className="text-center text-[11px] text-muted">
+        You&apos;ll add your phone number from your profile so we can link
+        your orders. Takes 10 seconds.
+      </p>
 
       <div className="relative">
         <div className="hairline" />
@@ -35,12 +42,37 @@ export default function SignUpForm({ next }: { next: string }) {
 
       <form action={formAction} className="space-y-4">
         <input type="hidden" name="next" value={next} />
-        <Field name="email" type="email" label="Email" autoComplete="email" required />
+        <Field
+          name="name"
+          label="Full name"
+          autoComplete="name"
+          required
+          minLength={2}
+        />
+        <Field
+          name="email"
+          type="email"
+          label="Email"
+          autoComplete="email"
+          required
+        />
+        <Field
+          name="phone"
+          type="tel"
+          label="Phone (Indian mobile)"
+          autoComplete="tel"
+          inputMode="tel"
+          pattern="(?:\+?91[\s-]?|0)?[6-9]\d{9}"
+          placeholder="98XXXXXXXX"
+          required
+          hint="10-digit mobile. We use it to confirm orders on WhatsApp and surface your purchase history."
+        />
         <Field
           name="password"
           type="password"
           label="Password (8+ characters)"
           autoComplete="new-password"
+          minLength={8}
           required
         />
         {state?.error && (
@@ -57,16 +89,34 @@ export default function SignUpForm({ next }: { next: string }) {
 
 function Field({
   name,
-  type,
+  type = "text",
   label,
   autoComplete,
   required,
+  minLength,
+  pattern,
+  placeholder,
+  inputMode,
+  hint,
 }: {
   name: string;
-  type: string;
+  type?: string;
   label: string;
   autoComplete?: string;
   required?: boolean;
+  minLength?: number;
+  pattern?: string;
+  placeholder?: string;
+  inputMode?:
+    | "text"
+    | "tel"
+    | "numeric"
+    | "email"
+    | "url"
+    | "search"
+    | "decimal"
+    | "none";
+  hint?: string;
 }) {
   return (
     <label className="block">
@@ -76,8 +126,13 @@ function Field({
         type={type}
         autoComplete={autoComplete}
         required={required}
+        minLength={minLength}
+        pattern={pattern}
+        placeholder={placeholder}
+        inputMode={inputMode}
         className="mt-2 w-full rounded-full border border-ink/15 bg-bone px-5 py-3 text-sm focus:border-ink focus:outline-none"
       />
+      {hint && <span className="mt-1 block text-xs text-muted">{hint}</span>}
     </label>
   );
 }

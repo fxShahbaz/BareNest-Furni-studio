@@ -2,13 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 
+// Collections are static curation — refresh hourly.
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "Collections",
   description:
-    "Curated BareNest furniture sets — first-home bedroom, dining for six, the WFH desk-and-chair pair. Pieces that work together by design.",
+    "Curated bare nest furniture sets — first-home bedroom, dining for six, the WFH desk-and-chair pair. Pieces that work together by design.",
   alternates: { canonical: "/collections" },
   openGraph: {
-    title: "Collections — BareNest",
+    title: "Collections — bare nest",
     description:
       "Curated furniture sets. First-home, dining, WFH — pieces that work together.",
     url: "/collections",

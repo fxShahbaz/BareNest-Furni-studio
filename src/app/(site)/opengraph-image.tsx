@@ -5,7 +5,7 @@ import { SHOWROOM } from "@/lib/utils";
 // its own opengraph-image.tsx. 1200x630 — Twitter/LinkedIn/WhatsApp/Slack
 // all expect this exact ratio.
 
-export const alt = "BareNest — Bare Nest Furni Studio, Patna";
+export const alt = "bare nest — Bare Nest Furni Studio, Patna";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

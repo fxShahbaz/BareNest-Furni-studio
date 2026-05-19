@@ -3,6 +3,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import MobileDock from "@/components/mobile-dock";
 import LaunchPopup from "@/components/launch-popup";
+import ChatWidget from "@/components/chat-widget";
 import { getSettings } from "@/lib/queries/settings";
 
 export default async function SiteLayout({
@@ -20,6 +21,7 @@ export default async function SiteLayout({
         <Footer />
       </SmoothScroll>
       <MobileDock onlineOrderingEnabled={online_ordering_enabled} />
+      <ChatWidget />
       <LaunchPopup />
     </>
   );

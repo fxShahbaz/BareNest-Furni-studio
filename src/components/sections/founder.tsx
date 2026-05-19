@@ -10,7 +10,7 @@ import {
 } from "framer-motion";
 
 const QUOTE =
-  "Eight years on the shop floor taught me one thing: customers don't want the cheapest. They want to know what they're buying. So we built BareNest around two materials we'd put in our own home — and refused the one we wouldn't.";
+  "Eight years on the shop floor taught me one thing: customers don't want the cheapest. They want to know what they're buying. So we built bare nest around two materials we'd put in our own home — and refused the one we wouldn't.";
 
 const COLOR_DIM = "#7a6f5e";
 const COLOR_LIT = "#f6f3ec";

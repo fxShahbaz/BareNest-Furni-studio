@@ -239,7 +239,7 @@ on what you put on it.
 
 ## What we make for small spaces
 
-We've started a small-space line in the BareNest catalogue specifically
+We've started a small-space line in the bare nest catalogue specifically
 because the standard furniture market underserves 1 BHK and small-flat
 customers. Pieces are right-sized, hardware-grade is the same as our
 larger pieces, and we offer modular options where it makes sense.

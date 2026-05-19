@@ -2,7 +2,7 @@ import { getAllProducts } from "@/lib/queries/products";
 import Booklet from "@/components/booklet";
 
 export const metadata = {
-  title: "The Catalogue — BareNest",
+  title: "The Catalogue — bare nest",
   description:
     "Volume 01 — the printed catalogue, page by page. Solid wood and honest MDF, made in Patna.",
 };

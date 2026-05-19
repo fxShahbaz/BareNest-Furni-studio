@@ -5,7 +5,7 @@ import SignUpForm from "./sign-up-form";
 
 export const metadata = {
   title: "Create account",
-  description: "Create a BareNest account to track orders and customise saved pieces.",
+  description: "Create a bare nest account to track orders and customise saved pieces.",
   alternates: { canonical: "/sign-up" },
   robots: { index: false, follow: true },
 };

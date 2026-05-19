@@ -53,7 +53,7 @@ Standard rectangular dining table sizes:
 |---|---|---|---|
 | 4 | 48" × 30" | 122 × 76 | Tight; 4 adults only just |
 | 6 | 60" × 36" | 152 × 91 | Standard family table |
-| 6 (comfortable) | 72" × 36" | 183 × 91 | Most popular at BareNest |
+| 6 (comfortable) | 72" × 36" | 183 × 91 | Most popular at bare nest |
 | 8 | 84" × 40" | 213 × 102 | Hosting-friendly |
 | 10 | 96" × 42" | 244 × 107 | Large home / joint family |
 | 12 | 108" × 44" | 274 × 112 | Statement table |
@@ -263,7 +263,7 @@ match any of our dining tables.
 Below these ranges = MDF/particle board or unbranded hardware. Above =
 brand premium.
 
-## What we make at BareNest
+## What we make at bare nest
 
 The launch range includes:
 

@@ -71,7 +71,7 @@ export async function createEnquiry(
   const whatsappNumber =
     process.env.NEXT_PUBLIC_WHATSAPP_E164 ?? SHOWROOM.whatsappE164;
   const lines = [
-    `Hi BareNest, I'd like to enquire about:`,
+    `Hi bare nest, I'd like to enquire about:`,
     `*${product.name}* (${product.material}) × ${qty}`,
     `Estimated: ${formatINR(product.price * qty)}`,
     "",

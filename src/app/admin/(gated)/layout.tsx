@@ -3,7 +3,7 @@ import { getCurrentUser, isCurrentUserOwner } from "@/lib/queries/admin";
 import AdminSidebar from "@/components/admin/sidebar";
 import AdminPageHeader from "@/components/admin/page-header";
 
-export const metadata = { title: "Admin — BareNest" };
+export const metadata = { title: "Admin — bare nest" };
 
 export default async function AdminGatedLayout({
   children,

@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { getProductBySlug } from "@/lib/queries/products";
 import { formatINR, SHOWROOM } from "@/lib/utils";
 
-export const alt = "BareNest product";
+export const alt = "bare nest product";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

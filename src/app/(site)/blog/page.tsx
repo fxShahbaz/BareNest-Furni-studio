@@ -5,13 +5,17 @@ import { getAllPosts, formatPostDate } from "@/lib/blog";
 
 import type { Metadata } from "next";
 
+// Blog content lives in repo TS modules — only changes on deploy. Cache
+// the rendered index for an hour.
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "Blog",
   description:
     "Notes from the workshop: materials, process, buying guides, and dispatches from Bare Nest Furni Studio in Patna.",
   alternates: { canonical: "/blog" },
   openGraph: {
-    title: "Blog — BareNest",
+    title: "Blog — bare nest",
     description:
       "Editorial posts on solid wood, MDF, furniture buying, and life at the studio.",
     url: "/blog",

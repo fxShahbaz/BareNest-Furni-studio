@@ -39,8 +39,8 @@ export default function Footer() {
   return (
     <footer className="relative overflow-hidden bg-bark text-bone">
       <div className="pointer-events-none absolute -bottom-32 left-1/2 -translate-x-1/2 select-none text-center">
-        <h2 className="font-display text-[24vw] leading-none tracking-tight text-bone/[0.06]">
-          BareNest
+        <h2 className="whitespace-nowrap font-display text-[24vw] leading-none tracking-tight text-bone/[0.06]">
+          bare nest
         </h2>
       </div>
 
@@ -50,7 +50,7 @@ export default function Footer() {
             <div className="mb-8 inline-block overflow-hidden rounded-2xl bg-bone ring-1 ring-bone/20 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.5)]">
               <Image
                 src="/logo.png"
-                alt="BareNest"
+                alt="bare nest"
                 width={132}
                 height={112}
                 className="block h-20 w-auto md:h-24"
@@ -155,8 +155,11 @@ export default function Footer() {
         </div>
 
         <div className="mt-20 flex flex-col items-start justify-between gap-4 border-t border-bone/10 pt-6 text-xs text-bone/50 md:flex-row md:items-center">
+          {/* Copyright line uses the title-case brand ("Bare Nest")
+              intentionally to differentiate from the lowercase watermark
+              and the lowercase wordmark in the masthead. */}
           <span>
-            © {new Date().getFullYear()} {SHOWROOM.brand} — Founded by{" "}
+            © {new Date().getFullYear()} Bare Nest — Founded by{" "}
             {SHOWROOM.founder}
           </span>
           <span>Honest furniture. No particle board, ever.</span>

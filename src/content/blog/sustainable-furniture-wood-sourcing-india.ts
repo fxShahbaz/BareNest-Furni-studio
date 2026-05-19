@@ -236,7 +236,7 @@ The math accounts for the lifecycle.
 - **Painted finishes that peel rather than wear** — refinishing a
   peeled piece is a strip-back job, not a touch-up
 
-## How BareNest thinks about it
+## How bare nest thinks about it
 
 We're not certified. Most Indian furniture studios aren't, because
 certification (FSC, etc.) costs more than the entire annual revenue
@@ -289,7 +289,7 @@ your children are paying for it. That's the only test that matters.
 
 If you'd like to talk through the specific sourcing of a piece you're
 considering, [drop us a line](/contact). We're happy to be specific
-about where every piece of wood in any BareNest item comes from.
+about where every piece of wood in any bare nest item comes from.
 
 — Gaurav
 `,

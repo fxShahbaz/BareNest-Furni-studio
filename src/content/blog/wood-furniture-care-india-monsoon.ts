@@ -235,7 +235,7 @@ finish, not a wax — it strips the existing polish off).
 
 ## The bottom line
 
-A solid wood bed from BareNest, treated as described above, will outlive
+A solid wood bed from bare nest, treated as described above, will outlive
 the bedroom it's in. We've seen pieces in family homes in Bihar that are
 older than the people sleeping in them. **Twenty minutes a quarter is the
 price of admission**.

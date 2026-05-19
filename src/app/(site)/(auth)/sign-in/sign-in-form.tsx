@@ -7,6 +7,7 @@ import {
   signInWithGoogle,
   type AuthState,
 } from "@/app/auth/actions";
+import { GoogleIcon } from "@/components/icons/google";
 
 export default function SignInForm({ next }: { next: string }) {
   const [state, formAction] = useActionState<AuthState, FormData>(
@@ -20,8 +21,9 @@ export default function SignInForm({ next }: { next: string }) {
         <input type="hidden" name="next" value={next} />
         <button
           type="submit"
-          className="w-full rounded-full border border-ink/20 bg-bone px-5 py-3 text-sm text-ink hover:bg-cream"
+          className="inline-flex w-full items-center justify-center gap-2.5 rounded-full border border-ink/20 bg-bone px-5 py-3 text-sm font-medium text-ink hover:bg-cream"
         >
+          <GoogleIcon className="h-4 w-4" />
           Continue with Google
         </button>
       </form>

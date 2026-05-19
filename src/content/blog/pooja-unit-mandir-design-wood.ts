@@ -255,7 +255,7 @@ precedence over generic Vastu advice from a furniture blog.
 10. Specified delivery height carefully — wall-mounted mandirs need
     height measurements to within 1cm
 
-## Custom mandir at BareNest
+## Custom mandir at bare nest
 
 We custom-build mandir pieces routinely. Range:
 

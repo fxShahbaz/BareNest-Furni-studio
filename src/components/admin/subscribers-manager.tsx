@@ -121,7 +121,7 @@ export default function SubscribersManager({
     try {
       const ExcelJS = (await import("exceljs")).default;
       const wb = new ExcelJS.Workbook();
-      wb.creator = "BareNest";
+      wb.creator = "bare nest";
       wb.created = new Date();
       const sheet = wb.addWorksheet("Subscribers");
       sheet.columns = [

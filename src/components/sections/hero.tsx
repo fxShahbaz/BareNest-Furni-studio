@@ -129,7 +129,7 @@ export default function Hero() {
             className="mt-8 max-w-md text-sm text-muted md:text-base"
             data-hero-meta
           >
-            BareNest is a furniture studio that refuses to play the
+            bare nest is a furniture studio that refuses to play the
             particle-board game. Just solid wood for the heirlooms and dense
             MDF for the everyday — never the cheap stuff in between.
           </p>

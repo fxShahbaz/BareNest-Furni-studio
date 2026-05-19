@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "Reserve a preview slot for Bare Nest Furni Studio. Honest furniture in Patna, Bihar — opening 18 June 2026.",
   alternates: { canonical: "/showroom" },
   openGraph: {
-    title: "Visit the Showroom — BareNest, Patna",
+    title: "Visit the Showroom — bare nest, Patna",
     description:
       "Bare Nest Furni Studio opens 18 June 2026 in Patna. Reserve a preview slot.",
     url: "/showroom",

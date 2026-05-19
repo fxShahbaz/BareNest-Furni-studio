@@ -16,6 +16,7 @@ import {
   FileText,
   Mail,
   MessageSquare,
+  MessageCircle,
   Settings,
 } from "lucide-react";
 import { signOut } from "@/app/auth/actions";
@@ -24,6 +25,7 @@ const items = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/enquiries", label: "Enquiries", icon: MessageSquare },
+  { href: "/admin/messages", label: "Messages", icon: MessageCircle },
   { href: "/admin/invoices", label: "Invoices", icon: FileText },
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/subscribers", label: "Subscribers", icon: Mail },
@@ -85,7 +87,7 @@ export default function AdminSidebar({ userEmail }: { userEmail: string }) {
       {/* Mobile header */}
       <div className="sticky top-0 z-40 flex items-center justify-between border-b border-ink/10 bg-bone/90 px-5 py-3 backdrop-blur md:hidden print:hidden">
         <Link href="/admin" className="font-wordmark text-2xl leading-none text-ink">
-          BareNest
+          bare nest
         </Link>
         <button
           type="button"
@@ -153,12 +155,12 @@ function SidebarInner({
           href="/admin"
           className="block flex-1"
           onClick={onNavigate}
-          title="BareNest admin"
+          title="bare nest admin"
         >
           {/* Full wordmark — hidden when collapsed on desktop */}
           <div className={collapsed ? "md:hidden" : "block"}>
             <p className="font-wordmark text-3xl leading-none text-ink">
-              BareNest
+              bare nest
             </p>
             <p className="eyebrow mt-1 text-muted">admin</p>
           </div>

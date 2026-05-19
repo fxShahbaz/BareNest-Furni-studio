@@ -241,7 +241,7 @@ removable covers.
 9. Confirmed delivery and assembly are included.
 10. Looked under the bed to confirm slatted (not solid sheet) platform.
 
-## The BareNest bed range
+## The bare nest bed range
 
 We launch with one storage bed, one hydraulic lift bed, and two platform
 beds. All four are solid sheesham with SUSPA-grade pistons (for the lift

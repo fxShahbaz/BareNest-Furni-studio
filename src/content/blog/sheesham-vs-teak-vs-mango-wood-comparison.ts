@@ -242,7 +242,7 @@ Per cubic foot, seasoned and kiln-dried, in Patna:
 These are raw timber prices. Finished furniture adds 4-6x for labour,
 joinery, hardware, finish, and overhead.
 
-## What we use at BareNest
+## What we use at bare nest
 
 In our launch range:
 

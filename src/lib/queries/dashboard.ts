@@ -58,6 +58,10 @@ export type DashboardData = {
   subscribers7dDelta: number;
   customersCount: number;
   customers7dDelta: number;
+  // Buyer split derived from the orders feed (last 365d, excluding cancelled).
+  // "New" = customers with exactly 1 order; "Returning" = 2+ orders.
+  newBuyers: number;
+  returningBuyers: number;
   recentOrders: RecentOrder[];
   daysToLaunch: number;
   totalProducts: number;
@@ -80,6 +84,7 @@ type RawOrderItem = {
 type RawOrder = {
   id: string;
   customer_name: string;
+  customer_phone: string;
   total: number;
   status: string;
   source: string;
@@ -157,7 +162,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     admin
       .from("orders")
       .select(
-        "id,customer_name,total,status,source,invoice_number,items,created_at"
+        "id,customer_name,customer_phone,total,status,source,invoice_number,items,created_at"
       )
       .gte("created_at", ordersFrom.toISOString())
       .order("created_at", { ascending: false })
@@ -277,6 +282,22 @@ export async function getDashboardData(): Promise<DashboardData> {
     .map(([material, revenue]) => ({ material, revenue }))
     .sort((a, b) => b.revenue - a.revenue);
 
+  /* --- New vs returning buyers (from last-365d orders feed) --- */
+
+  const orderCountByPhone = new Map<string, number>();
+  for (const o of orders) {
+    if (o.status === "cancelled") continue;
+    const phone = (o.customer_phone ?? "").replace(/\D/g, "");
+    if (!phone) continue;
+    orderCountByPhone.set(phone, (orderCountByPhone.get(phone) ?? 0) + 1);
+  }
+  let newBuyers = 0;
+  let returningBuyers = 0;
+  for (const count of orderCountByPhone.values()) {
+    if (count >= 2) returningBuyers += 1;
+    else newBuyers += 1;
+  }
+
   /* --- AOV --- */
 
   const aov =
@@ -331,6 +352,8 @@ export async function getDashboardData(): Promise<DashboardData> {
     subscribers7dDelta: subscribers7d.count ?? 0,
     customersCount: customersAll.count ?? 0,
     customers7dDelta: customers7d.count ?? 0,
+    newBuyers,
+    returningBuyers,
     recentOrders,
     daysToLaunch,
     totalProducts: productsCountRes.count ?? 0,

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     "furniture materials India",
   ],
   openGraph: {
-    title: "Materials — BareNest",
+    title: "Materials — bare nest",
     description:
       "Two materials we trust, one we refuse. The honest case for solid wood + MDF over particle board.",
     url: "/materials",
@@ -119,7 +119,7 @@ const DETAILS: Detail[] = [
     priceTier: "—",
     paragraphs: [
       "Particle board is the cheapest pressed-wood product on the market — coarse sawdust and shavings bound with adhesive, pressed into sheets, almost always hidden under a glossy laminate. About 90% of local furniture shops in India sell it. It's why an entire bedroom set can be advertised at a too-good-to-be-true price.",
-      "We've watched particle-board furniture sag within 18 months, lose its laminate corners on the first move, and swell at the first drop of water. Refinishing isn't an option — there's no real wood under the surface. BareNest doesn't carry it.",
+      "We've watched particle-board furniture sag within 18 months, lose its laminate corners on the first move, and swell at the first drop of water. Refinishing isn't an option — there's no real wood under the surface. bare nest doesn't carry it.",
     ],
     facts: [
       { k: "Lifespan", v: "1–3 yrs" },
@@ -181,7 +181,7 @@ export default function MaterialsPage() {
             data-reveal
           >
             <p className="max-w-xl text-base text-muted md:col-span-7 md:text-lg">
-              BareNest is built on a stricter shortlist than most furniture
+              bare nest is built on a stricter shortlist than most furniture
               shops you&apos;ll walk into. Here&apos;s exactly what we use,
               where we use it, and the one material we&apos;ve chosen to
               refuse — and how to spot it before you buy.
@@ -659,7 +659,7 @@ function ComparisonTable() {
     { label: "Survives moves", values: ["y", "y", "n"] },
     { label: "Holds finish", values: ["y", "y", "n"] },
     { label: "Water-resistant edges", values: ["y", "y", "n"] },
-    { label: "Stocked at BareNest", values: ["y", "y", "n"] },
+    { label: "Stocked at bare nest", values: ["y", "y", "n"] },
   ];
   return (
     <table className="w-full border-collapse text-left">

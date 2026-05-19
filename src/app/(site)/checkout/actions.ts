@@ -288,7 +288,7 @@ export async function submitOrder(
     const whatsappNumber =
       process.env.NEXT_PUBLIC_WHATSAPP_E164 ?? SHOWROOM.whatsappE164;
     const lines = [
-      `*New BareNest order*`,
+      `*New bare nest order*`,
       `Order: ${orderId.slice(0, 8).toUpperCase()}`,
       `Name: ${name}`,
       `Phone: ${phone}`,

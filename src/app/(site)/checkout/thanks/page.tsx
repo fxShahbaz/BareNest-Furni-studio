@@ -6,7 +6,7 @@ import { ArrowRight, MessageCircle, CheckCircle2 } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Order Confirmed",
-  description: "Your BareNest order is recorded. We'll confirm on WhatsApp shortly.",
+  description: "Your bare nest order is recorded. We'll confirm on WhatsApp shortly.",
   robots: { index: false, follow: false },
 };
 
@@ -51,7 +51,7 @@ export default async function ThanksPage({
   const whatsappNumber =
     process.env.NEXT_PUBLIC_WHATSAPP_E164 ?? SHOWROOM.whatsappE164;
   const lines = [
-    `*BareNest order ${order.id.slice(0, 8).toUpperCase()}*`,
+    `*bare nest order ${order.id.slice(0, 8).toUpperCase()}*`,
     `Name: ${order.customer_name}`,
     `Phone: ${order.customer_phone}`,
     `Address: ${order.customer_address}`,

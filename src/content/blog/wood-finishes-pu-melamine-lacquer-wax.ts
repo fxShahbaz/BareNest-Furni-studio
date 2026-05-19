@@ -174,7 +174,7 @@ dining tables, beds, or anything you'd like to refinish in 15 years.
 | PU | Excellent | Good | Excellent | Poor | Range | High |
 | Melamine | Excellent | Moderate | Moderate | None | Printed pattern | Low |
 
-## What we use at BareNest
+## What we use at bare nest
 
 A piece-by-piece breakdown of how we finish furniture in the workshop:
 

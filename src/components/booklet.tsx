@@ -124,7 +124,7 @@ export default function Booklet({ products }: Props) {
           scrolled within without the browser fighting the user. */}
       <div
         ref={containerRef}
-        aria-label="BareNest catalogue, page by page"
+        aria-label="bare nest catalogue, page by page"
         className="h-[100svh] snap-y snap-proximity overflow-y-auto bg-cream/50"
       >
         {/* COVER */}

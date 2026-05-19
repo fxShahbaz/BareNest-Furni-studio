@@ -232,7 +232,7 @@ table into a tidy one.
 We mention this because it's the single highest-impact aesthetic
 upgrade for any coffee table — no carpenter required.
 
-## What we make at BareNest
+## What we make at bare nest
 
 Four coffee tables in the launch range:
 

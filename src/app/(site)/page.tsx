@@ -10,16 +10,22 @@ import Countdown from "@/components/sections/countdown";
 import FounderNote from "@/components/sections/promise";
 import Happiness from "@/components/sections/happiness";
 import LaunchEventJsonLd from "@/components/seo/launch-event-json-ld";
+import PrefetchRoutes from "@/components/prefetch-routes";
+
+// Home revalidates every 5 minutes. Featured products / countdown
+// don't need real-time freshness; admin product updates invalidate
+// /shop and any direct revalidatePath calls flow here too.
+export const revalidate = 300;
 
 export const metadata: Metadata = {
-  // Use `title.absolute` so the template doesn't append "— BareNest"
+  // Use `title.absolute` so the template doesn't append "— bare nest"
   // to a title that already starts with the brand.
-  title: { absolute: "BareNest — Honest Wood Furniture, Made in Patna" },
+  title: { absolute: "bare nest — Honest Wood Furniture, Made in Patna" },
   description:
     "Solid wood and MDF furniture, thoughtfully made. Bare Nest Furni Studio inaugurates 18 June 2026 in Patna. Founded by Gaurav Bahri. No particle board, ever.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "BareNest — Honest Wood Furniture, Made in Patna",
+    title: "bare nest — Honest Wood Furniture, Made in Patna",
     description:
       "Solid wood and MDF furniture, thoughtfully made. Showroom inaugurates 18 June 2026 in Patna.",
     url: "/",
@@ -31,6 +37,7 @@ export default function Home() {
   return (
     <>
       <LaunchEventJsonLd />
+      <PrefetchRoutes />
       <Hero />
       <Marquee />
       <Materials />

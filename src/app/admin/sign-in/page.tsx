@@ -4,7 +4,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { isCurrentUserOwner } from "@/lib/queries/admin";
 import AdminSignInForm from "./sign-in-form";
 
-export const metadata = { title: "Admin sign in — BareNest" };
+export const metadata = { title: "Admin sign in — bare nest" };
 
 // Bypass the (auth) /sign-in page entirely — this is for owners only.
 export default async function AdminSignInPage({

@@ -274,7 +274,7 @@ A store that respects you will:
   inside cabinets, hardware), not a "starting from" number that doubles
   by checkout.
 
-At [BareNest](/materials), we do all of these by default. Walk in with a
+At [bare nest](/materials), we do all of these by default. Walk in with a
 torch and a list of questions — we will help you do every test in this
 article.
 

@@ -263,7 +263,7 @@ homeowners settled in a layout, L-shape is fine.
   Make sure the lift mechanism uses gas pistons (not just hinge gravity)
   and has stops at full open.
 
-## What we make at BareNest
+## What we make at bare nest
 
 Two sofas in the launch range, both **solid sheesham frame, 45D HR foam
 on seat, 32D foam on back, sinuous no-sag spring suspension, removable

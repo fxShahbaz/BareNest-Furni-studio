@@ -273,7 +273,7 @@ the student into one layout for a decade.
 6. **Using the dining chair as the work chair** — the single worst thing
    you can do to your back; the chair is rigid and the wrong height
 
-## What we make at BareNest
+## What we make at bare nest
 
 Two desks in the launch range:
 

@@ -12,6 +12,12 @@ import BlogPostJsonLd from "@/components/seo/blog-post-json-ld";
 import BreadcrumbsJsonLd from "@/components/seo/breadcrumbs-json-ld";
 import HowToJsonLd from "@/components/seo/howto-json-ld";
 
+// Blog posts are static TS modules — only change on deploy. Combined
+// with generateStaticParams below, every post gets a fully prerendered
+// HTML response with hour-long revalidation.
+export const revalidate = 3600;
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return getAllPosts().map((p) => ({ slug: p.slug }));
 }
@@ -37,20 +43,16 @@ export async function generateMetadata({
       type: "article",
       publishedTime: post.date,
       authors: [post.author],
-      images: [
-        {
-          url: post.cover,
-          width: 1600,
-          height: 1000,
-          alt: post.title,
-        },
-      ],
+      // Intentionally NOT setting `images` here — the file-based
+      // opengraph-image.tsx in this folder generates a branded 1200×630
+      // card per post. Setting `images` would override that with the
+      // raw Unsplash cover.
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      images: [post.cover],
+      // Same reason — let the file-based convention provide the image.
     },
   };
 }

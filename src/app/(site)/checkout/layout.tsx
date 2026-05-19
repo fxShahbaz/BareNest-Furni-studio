@@ -5,7 +5,7 @@ import { getSettings } from "@/lib/queries/settings";
 export const metadata: Metadata = {
   title: "Checkout",
   description:
-    "Place your BareNest order. We confirm on WhatsApp and collect payment on delivery — no card or UPI details required upfront.",
+    "Place your bare nest order. We confirm on WhatsApp and collect payment on delivery — no card or UPI details required upfront.",
   alternates: { canonical: "/checkout" },
   robots: { index: false, follow: false },
 };

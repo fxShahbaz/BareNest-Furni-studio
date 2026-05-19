@@ -306,7 +306,7 @@ Avoid:
    doors no longer align
 5. **Particle board substrate** — see above; long-term failure mode
 
-## What we make at BareNest
+## What we make at bare nest
 
 Three crockery units in the launch range:
 

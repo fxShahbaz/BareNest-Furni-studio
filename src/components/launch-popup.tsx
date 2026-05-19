@@ -182,14 +182,18 @@ export default function LaunchPopup() {
                   &lsquo;26
                 </span>
               </div>
-              <div className="relative mx-auto h-28 w-28 overflow-hidden rounded-[1.4rem] bg-leaf/10 ring-1 ring-walnut/15 shadow-[0_14px_30px_-14px_rgba(20,17,14,0.3)] md:h-32 md:w-32">
-                <Image
-                  src="/logo-mark.png"
-                  alt="BareNest"
-                  fill
-                  sizes="(min-width: 768px) 128px, 112px"
-                  className="object-contain mix-blend-multiply"
-                />
+              <div className="relative mx-auto grid h-32 w-32 place-items-center overflow-hidden rounded-[1.6rem] bg-leaf/15 ring-1 ring-walnut/20 shadow-[0_18px_36px_-14px_rgba(20,17,14,0.35)] md:h-36 md:w-36">
+                {/* Inner box gives the logo breathing room so its bottom
+                    (pot/base) doesn't sit flush against the container edge. */}
+                <div className="relative h-[78%] w-[78%]">
+                  <Image
+                    src="/logo-mark.png"
+                    alt="bare nest"
+                    fill
+                    sizes="(min-width: 768px) 144px, 128px"
+                    className="object-contain mix-blend-multiply"
+                  />
+                </div>
               </div>
 
               <div className="mt-4 flex flex-col items-center leading-none">

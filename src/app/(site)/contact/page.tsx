@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "WhatsApp the studio, email us, or book a showroom visit. Bare Nest Furni Studio · Patna. Replies within a couple of hours during studio hours.",
   alternates: { canonical: "/contact" },
   openGraph: {
-    title: "Contact BareNest — Patna Studio",
+    title: "Contact bare nest — Patna Studio",
     description:
       "Reach the studio on WhatsApp, email, or book a showroom visit.",
     url: "/contact",

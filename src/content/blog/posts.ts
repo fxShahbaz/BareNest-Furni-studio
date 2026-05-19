@@ -1,4 +1,4 @@
-// BareNest blog posts. Hardcoded — to add a new post, create a new TS
+// bare nest blog posts. Hardcoded — to add a new post, create a new TS
 // module in this folder exporting a `post: BlogPost`, then import and
 // register it below. Posts are sorted by `date` (newest first) in the
 // helpers, so the order here doesn't matter.

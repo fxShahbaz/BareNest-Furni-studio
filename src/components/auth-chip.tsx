@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { User } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase/client";
-import { signOut } from "@/app/auth/actions";
 
 export default function AuthChip() {
   const [email, setEmail] = useState<string | null | undefined>(undefined);
@@ -30,7 +29,8 @@ export default function AuthChip() {
   }, []);
 
   if (email === undefined) {
-    // First paint while resolving — render nothing to avoid flash.
+    // First paint while resolving — render a placeholder of the same size
+    // to avoid layout shift in the navbar.
     return <span className="h-10 w-10" aria-hidden />;
   }
 
@@ -46,15 +46,16 @@ export default function AuthChip() {
     );
   }
 
+  // Signed in — show an account button. Sign-out lives on /account
+  // (under the profile card) so the navbar stays clean.
   return (
-    <form action={signOut}>
-      <button
-        type="submit"
-        className="rounded-full border border-ink/10 px-3 py-2 text-xs text-ink/80 hover:bg-ink/5"
-        title={`Signed in as ${email} — click to sign out`}
-      >
-        Sign out
-      </button>
-    </form>
+    <Link
+      href="/account"
+      aria-label="Your account"
+      title={`Signed in as ${email}`}
+      className="grid h-10 w-10 place-items-center rounded-full border border-ink/10 bg-cream/50 hover:bg-ink/5"
+    >
+      <User className="h-4 w-4" />
+    </Link>
   );
 }

@@ -4,10 +4,15 @@ import { CATEGORIES } from "@/lib/products";
 import { getAllProducts } from "@/lib/queries/products";
 import Link from "next/link";
 
+// Revalidate the rendered shop HTML every 60s. Admin mutations call
+// revalidatePath("/shop") so changes go live immediately; this just
+// caps how often anonymous traffic re-renders against Supabase.
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Shop",
   description:
-    "Browse the BareNest catalogue: solid wood beds, wardrobes, dining tables, sofas, and more. Made in Patna. Delivered across India.",
+    "Browse the bare nest catalogue: solid wood beds, wardrobes, dining tables, sofas, and more. Made in Patna. Delivered across India.",
   alternates: { canonical: "/shop" },
   keywords: [
     "buy furniture online India",
@@ -19,7 +24,7 @@ export const metadata: Metadata = {
     "furniture studio Patna",
   ],
   openGraph: {
-    title: "Shop — BareNest",
+    title: "Shop — bare nest",
     description:
       "Solid wood and MDF furniture, hand-made in Patna. The full catalogue.",
     url: "/shop",

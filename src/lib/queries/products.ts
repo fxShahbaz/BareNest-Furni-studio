@@ -1,6 +1,7 @@
 import "server-only";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { Product } from "@/lib/products";
+import { memo } from "@/lib/cache/memo";
 
 // The DB is the source of truth. Deleted products must never reappear via a
 // runtime fallback, so we never read from the TS catalogue here.
@@ -43,30 +44,42 @@ function fromRow(r: Row): Product {
 }
 
 export async function getAllProducts(): Promise<Product[]> {
-  const supabase = await supabaseServer();
-  if (!supabase) return [];
+  return memo(
+    "products:all",
+    async () => {
+      const supabase = await supabaseServer();
+      if (!supabase) return [];
 
-  const { data, error } = await supabase
-    .from("products")
-    .select(SELECT_COLS)
-    .order("created_at", { ascending: true });
+      const { data, error } = await supabase
+        .from("products")
+        .select(SELECT_COLS)
+        .order("created_at", { ascending: true });
 
-  if (error || !data) return [];
-  return (data as Row[]).map(fromRow);
+      if (error || !data) return [];
+      return (data as Row[]).map(fromRow);
+    },
+    { ttl: 60_000 }
+  );
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const supabase = await supabaseServer();
-  if (!supabase) return null;
+  return memo(
+    `products:slug:${slug}`,
+    async () => {
+      const supabase = await supabaseServer();
+      if (!supabase) return null;
 
-  const { data, error } = await supabase
-    .from("products")
-    .select(SELECT_COLS)
-    .eq("slug", slug)
-    .maybeSingle();
+      const { data, error } = await supabase
+        .from("products")
+        .select(SELECT_COLS)
+        .eq("slug", slug)
+        .maybeSingle();
 
-  if (error || !data) return null;
-  return fromRow(data as Row);
+      if (error || !data) return null;
+      return fromRow(data as Row);
+    },
+    { ttl: 60_000 }
+  );
 }
 
 export async function getFeaturedProducts(n: number): Promise<Product[]> {

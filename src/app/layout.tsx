@@ -3,6 +3,7 @@ import { Inter, Fraunces, Caveat } from "next/font/google";
 import ReactDOM from "react-dom";
 import "./globals.css";
 import SiteJsonLd from "@/components/seo/site-json-ld";
+import ServiceWorkerRegister from "@/components/service-worker-register";
 import { SITE_URL, SHOWROOM } from "@/lib/utils";
 
 const inter = Inter({
@@ -52,7 +53,7 @@ export const metadata: Metadata = {
     "honest furniture",
     "no particle board",
     "Bare Nest Furni Studio",
-    "BareNest",
+    "bare nest",
   ],
   alternates: {
     canonical: "/",
@@ -126,6 +127,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-bone text-ink overflow-x-hidden">
         <SiteJsonLd />
+        <ServiceWorkerRegister />
         {children}
       </body>
     </html>

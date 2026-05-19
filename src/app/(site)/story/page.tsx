@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Eight years of furniture-making in north India, a notebook of every failure, and the decision to start a studio in Patna that refuses to stock particle board.",
   alternates: { canonical: "/story" },
   openGraph: {
-    title: "Our Story — BareNest",
+    title: "Our Story — bare nest",
     description:
       "How Gaurav Bahri's eight years on the shop floor became Bare Nest Furni Studio.",
     url: "/story",
@@ -61,13 +61,13 @@ const MILESTONES: Milestone[] = [
   {
     year: "2023",
     title: "Quiet workshop visits",
-    body: "Most evenings, a tour of carpentry units in and around Patna. He builds a shortlist of seven craftspeople whose joints don't open up after a season — the ones BareNest will start with.",
+    body: "Most evenings, a tour of carpentry units in and around Patna. He builds a shortlist of seven craftspeople whose joints don't open up after a season — the ones bare nest will start with.",
     tag: "build",
   },
   {
     year: "2024",
     title: "Names the studio. Draws the brand.",
-    body: "BareNest goes from notebook entries to a real plan. The materials shortlist gets ruthless: solid wood, dense MDF, and an explicit refusal of particle board. Even at the cheapest tier.",
+    body: "bare nest goes from notebook entries to a real plan. The materials shortlist gets ruthless: solid wood, dense MDF, and an explicit refusal of particle board. Even at the cheapest tier.",
     tag: "decision",
   },
   {
@@ -180,7 +180,7 @@ export default function StoryPage() {
         <div className="mt-12 grid gap-12 md:grid-cols-12 md:items-end">
           <div className="md:col-span-7">
             <p className="text-lg leading-relaxed text-ink/85 md:text-2xl">
-              BareNest exists because {SHOWROOM.founder} spent eight years on
+              bare nest exists because {SHOWROOM.founder} spent eight years on
               the other side of the counter — watching customers buy furniture
               they didn&apos;t fully understand, and watching it fall apart
               eighteen months later.
@@ -223,7 +223,7 @@ export default function StoryPage() {
               <div className="relative aspect-[4/5] overflow-hidden rounded-[1.75rem]">
                 <Image
                   src="https://images.unsplash.com/photo-1581539250439-c96689b516dd?auto=format&fit=crop&w=900&q=80"
-                  alt="Inside a Patna workshop where BareNest pieces are built"
+                  alt="Inside a Patna workshop where bare nest pieces are built"
                   fill
                   sizes="(min-width: 768px) 40vw, 100vw"
                   className="object-cover"
@@ -254,7 +254,7 @@ export default function StoryPage() {
 
               <blockquote className="mt-8 max-w-2xl border-l-2 border-walnut pl-5 font-display text-xl italic text-walnut md:text-2xl">
                 &ldquo;The furniture business doesn&apos;t need more catalogues.
-                It needs fewer compromises. BareNest is my answer to the one
+                It needs fewer compromises. bare nest is my answer to the one
                 compromise everyone else makes — particle board — and the two
                 materials I&apos;ll stand behind without flinching.&rdquo;
               </blockquote>
@@ -270,7 +270,7 @@ export default function StoryPage() {
                 <p>
                   He spent the next seven years keeping a quiet notebook of
                   failures, customer complaints, joint-types, finishes, and
-                  workshop partners. BareNest is that notebook, opened up and
+                  workshop partners. bare nest is that notebook, opened up and
                   built into a studio.
                 </p>
               </div>
@@ -311,7 +311,7 @@ export default function StoryPage() {
             <p className="text-sm text-muted md:col-span-5 md:text-base">
               Nine moments between 2018 and the showroom inauguration on
               18 June 2026 — the lessons, the calls, and the quiet decisions
-              that shaped BareNest&apos;s shortlist.
+              that shaped bare nest&apos;s shortlist.
             </p>
           </div>
 
@@ -484,7 +484,7 @@ export default function StoryPage() {
                 What we will <em className="serif-italic">not</em> do is
                 expand the catalogue at the cost of the shortlist. No
                 particle-board tier &mdash; not even &ldquo;just for the
-                budget customers&rdquo;. The whole point of BareNest is the
+                budget customers&rdquo;. The whole point of bare nest is the
                 line we won&apos;t cross.
               </p>
             </div>

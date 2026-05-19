@@ -19,7 +19,7 @@ export function absoluteUrl(path: string): string {
 }
 
 export const SHOWROOM = {
-  brand: "BareNest",
+  brand: "bare nest",
   studio: "Bare Nest Furni Studio",
   founder: "Gaurav Bahri",
   founderYears: 8,

@@ -12,6 +12,11 @@ import { getSettings } from "@/lib/queries/settings";
 import Link from "next/link";
 import ProductJsonLd from "@/components/seo/product-json-ld";
 import BreadcrumbsJsonLd from "@/components/seo/breadcrumbs-json-ld";
+import TrackRecentProduct from "@/components/track-recent-product";
+
+// Product detail pages revalidate every 5 minutes. Admin updates call
+// revalidatePath(`/shop/${slug}`) so edits land instantly.
+export const revalidate = 300;
 
 type Params = Promise<{ slug: string }>;
 
@@ -20,7 +25,7 @@ export async function generateMetadata({ params }: { params: Params }) {
   const p = await getProductBySlug(slug);
   if (!p) return { title: "Not found" };
   const description =
-    p.description || `${p.name} — ${p.material} furniture by BareNest, made in Patna.`;
+    p.description || `${p.name} — ${p.material} furniture by bare nest, made in Patna.`;
   return {
     title: p.name,
     description,
@@ -31,25 +36,21 @@ export async function generateMetadata({ params }: { params: Params }) {
       p.category,
       "furniture Patna",
       "buy furniture India",
-      "BareNest",
+      "bare nest",
     ],
     openGraph: {
       title: p.name,
       description,
       url: `/shop/${p.slug}`,
       type: "website",
-      images: p.images.slice(0, 1).map((img) => ({
-        url: img,
-        width: 1200,
-        height: 1200,
-        alt: p.name,
-      })),
+      // Image intentionally omitted — the file-based opengraph-image.tsx
+      // in this folder generates a branded 1200×630 card with product
+      // photo + name + price. Adding `images` here would override that.
     },
     twitter: {
       card: "summary_large_image",
       title: p.name,
       description,
-      images: p.images.slice(0, 1),
     },
   };
 }
@@ -70,6 +71,13 @@ export default async function ProductPage({ params }: { params: Params }) {
           { name: "Shop", path: "/shop" },
           { name: p.name, path: `/shop/${p.slug}` },
         ]}
+      />
+      <TrackRecentProduct
+        slug={p.slug}
+        name={p.name}
+        price={p.price}
+        image={p.images[0] ?? ""}
+        material={p.material}
       />
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <Link
