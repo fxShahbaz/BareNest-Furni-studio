@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useMotionValue, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
@@ -91,7 +91,13 @@ export default function Categories() {
     offset: ["start start", "end end"],
   });
 
-  const x = useTransform(scrollYProgress, [0, 1], [0, -maxX]);
+  const scrollX = useTransform(scrollYProgress, [0, 1], [0, -maxX]);
+  // Live drag offset added on top of scrollX. During a touch swipe we mutate
+  // this directly so the track follows the finger in the same frame, instead
+  // of round-tripping through Lenis → scrollY → useScroll (which lags ~2 frames
+  // on mobile and causes the "rubbery" feel).
+  const dragOffset = useMotionValue(0);
+  const x = useTransform(() => scrollX.get() + dragOffset.get());
 
   // Trackpad horizontal swipe (2-finger pan on macOS / shift+wheel): browser
   // fires wheel events with deltaX. While the section is pinned, redirect
@@ -115,13 +121,16 @@ export default function Categories() {
     return () => section.removeEventListener("wheel", onWheel);
   }, []);
 
-  // Pointer-driven swipe: translate horizontal drag on the track into page
-  // scroll, so the existing scrollYProgress→x mapping handles the animation
-  // for both mouse-wheel users and touch/swipe users.
+  // Pointer-driven swipe. We lock to an axis after a small threshold:
+  //   • horizontal → mutate dragOffset directly (instant visual), commit to
+  //     scrollY on release so the section continues to advance naturally.
+  //   • vertical → forward to page scroll so users can still exit the pinned
+  //     section by dragging up/down on the track.
   const dragState = useRef<{
     startX: number;
     startY: number;
     startScrollY: number;
+    axis: "x" | "y" | null;
     moved: number;
   } | null>(null);
 
@@ -137,6 +146,7 @@ export default function Categories() {
       startX: e.clientX,
       startY: e.clientY,
       startScrollY: window.scrollY,
+      axis: null,
       moved: 0,
     };
     e.currentTarget.setPointerCapture?.(e.pointerId);
@@ -148,18 +158,36 @@ export default function Categories() {
     const dx = e.clientX - st.startX;
     const dy = e.clientY - st.startY;
     st.moved = Math.max(st.moved, Math.abs(dx) + Math.abs(dy));
-    // Horizontal swipe advances the page; vertical drag still scrolls
-    // naturally so the section can be exited by dragging up/down too.
-    setScroll(st.startScrollY - dx - dy);
+
+    if (!st.axis) {
+      if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+      st.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+    }
+
+    if (st.axis === "x") {
+      dragOffset.set(dx);
+    } else {
+      setScroll(st.startScrollY - dy);
+    }
   };
 
   const endPointer = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragState.current) return;
+    const st = dragState.current;
+    if (!st) return;
     e.currentTarget.releasePointerCapture?.(e.pointerId);
-    // Defer clear so the synthetic click that follows pointerup can still
-    // read `moved` and be suppressed in onClickCapture below.
-    const moved = dragState.current.moved;
-    dragState.current = { ...dragState.current, moved };
+
+    if (st.axis === "x") {
+      const off = dragOffset.get();
+      // Commit the drag distance to scrollY so the section's progress sticks
+      // where the finger left it. Reset the offset on the next frame, after
+      // scrollX has caught up — otherwise we'd see a one-frame jump.
+      setScroll(st.startScrollY - off);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => dragOffset.set(0));
+      });
+    }
+
+    // Defer clear so the synthetic click can still read `moved`.
     requestAnimationFrame(() => {
       dragState.current = null;
     });
