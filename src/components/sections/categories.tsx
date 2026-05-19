@@ -93,6 +93,85 @@ export default function Categories() {
 
   const x = useTransform(scrollYProgress, [0, 1], [0, -maxX]);
 
+  // Trackpad horizontal swipe (2-finger pan on macOS / shift+wheel): browser
+  // fires wheel events with deltaX. While the section is pinned, redirect
+  // that horizontal intent into vertical page scroll so it drives the same
+  // scrollYProgress → x mapping.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      const rect = section.getBoundingClientRect();
+      const pinned = rect.top <= 0 && rect.bottom >= window.innerHeight;
+      if (!pinned) return;
+      e.preventDefault();
+      const lenis = (window as unknown as { __lenis?: { scrollTo: (y: number, o?: { immediate?: boolean }) => void } }).__lenis;
+      const target = window.scrollY + e.deltaX;
+      if (lenis) lenis.scrollTo(target, { immediate: true });
+      else window.scrollTo({ top: target, behavior: "auto" });
+    };
+    section.addEventListener("wheel", onWheel, { passive: false });
+    return () => section.removeEventListener("wheel", onWheel);
+  }, []);
+
+  // Pointer-driven swipe: translate horizontal drag on the track into page
+  // scroll, so the existing scrollYProgress→x mapping handles the animation
+  // for both mouse-wheel users and touch/swipe users.
+  const dragState = useRef<{
+    startX: number;
+    startY: number;
+    startScrollY: number;
+    moved: number;
+  } | null>(null);
+
+  const setScroll = (y: number) => {
+    const lenis = (window as unknown as { __lenis?: { scrollTo: (y: number, o?: { immediate?: boolean }) => void } }).__lenis;
+    if (lenis) lenis.scrollTo(y, { immediate: true });
+    else window.scrollTo({ top: y, behavior: "auto" });
+  };
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    dragState.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      startScrollY: window.scrollY,
+      moved: 0,
+    };
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const st = dragState.current;
+    if (!st) return;
+    const dx = e.clientX - st.startX;
+    const dy = e.clientY - st.startY;
+    st.moved = Math.max(st.moved, Math.abs(dx) + Math.abs(dy));
+    // Horizontal swipe advances the page; vertical drag still scrolls
+    // naturally so the section can be exited by dragging up/down too.
+    setScroll(st.startScrollY - dx - dy);
+  };
+
+  const endPointer = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragState.current) return;
+    e.currentTarget.releasePointerCapture?.(e.pointerId);
+    // Defer clear so the synthetic click that follows pointerup can still
+    // read `moved` and be suppressed in onClickCapture below.
+    const moved = dragState.current.moved;
+    dragState.current = { ...dragState.current, moved };
+    requestAnimationFrame(() => {
+      dragState.current = null;
+    });
+  };
+
+  const onClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (dragState.current && dragState.current.moved > 6) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   return (
     <section
       ref={sectionRef}
@@ -119,19 +198,26 @@ export default function Categories() {
 
         <motion.div
           ref={trackRef}
-          style={{ x }}
-          className="mt-auto flex gap-4 px-6 pb-10 sm:gap-6 md:gap-8 md:px-10 md:pb-16"
+          style={{ x, touchAction: "none" }}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endPointer}
+          onPointerCancel={endPointer}
+          onClickCapture={onClickCapture}
+          className="mt-auto flex cursor-grab select-none gap-4 px-6 pb-10 active:cursor-grabbing sm:gap-6 md:gap-8 md:px-10 md:pb-16"
         >
           {CARDS.map((c, i) => (
             <Link
               key={c.id}
               href={`/shop?cat=${c.id}`}
+              draggable={false}
               className="group relative block h-[58vh] w-[78vw] flex-none overflow-hidden rounded-3xl sm:w-[52vw] md:h-[60vh] md:w-[42vw]"
             >
               <Image
                 src={c.image}
                 alt={c.title}
                 fill
+                draggable={false}
                 sizes="(min-width: 768px) 42vw, (min-width: 640px) 52vw, 78vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
