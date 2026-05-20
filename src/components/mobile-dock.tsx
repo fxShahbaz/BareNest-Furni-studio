@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Home, LayoutGrid, ShoppingBag, MapPin } from "lucide-react";
 import { useCart } from "@/store/cart";
@@ -27,13 +27,16 @@ export default function MobileDock({
     : ITEMS.filter((i) => i.href !== "/cart");
 
   const [hidden, setHidden] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  // Route-change guard. SmoothScroll calls lenis.scrollTo(0) on every
+  // navigation, which fires scroll events that would otherwise trip the
+  // hide-on-scroll heuristic mid-transition. We freeze the hide logic and
+  // force-reveal the dock for a short window after every pathname change.
+  const navLockUntil = useRef(0);
 
   useEffect(() => {
-    // tiny delay so the entrance feels intentional, not flashy
-    const t = setTimeout(() => setMounted(true), 80);
-    return () => clearTimeout(t);
-  }, []);
+    setHidden(false);
+    navLockUntil.current = performance.now() + 700;
+  }, [pathname]);
 
   // Hide when scrolling down, reveal when scrolling up (Apple-style).
   useEffect(() => {
@@ -44,6 +47,13 @@ export default function MobileDock({
       ticking = true;
       requestAnimationFrame(() => {
         const cur = window.scrollY;
+        if (performance.now() < navLockUntil.current) {
+          // During a route transition, just track position without
+          // toggling visibility.
+          last = cur;
+          ticking = false;
+          return;
+        }
         if (Math.abs(cur - last) > 6) {
           if (cur < 80) setHidden(false);
           else setHidden(cur > last);
@@ -64,10 +74,8 @@ export default function MobileDock({
       className={cn(
         "fixed inset-x-3 z-30 md:hidden",
         "bottom-[max(env(safe-area-inset-bottom),0.75rem)]",
-        "transition-all duration-500 ease-out",
-        !mounted || hidden
-          ? "translate-y-[140%] opacity-0"
-          : "translate-y-0 opacity-100"
+        "transition-transform duration-500 ease-out",
+        hidden ? "translate-y-[140%]" : "translate-y-0"
       )}
     >
       <nav

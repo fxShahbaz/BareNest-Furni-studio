@@ -3,6 +3,8 @@ import ProductCard from "@/components/product-card";
 import { CATEGORIES } from "@/lib/products";
 import { getAllProducts } from "@/lib/queries/products";
 import Link from "next/link";
+import CatalogueJsonLd from "@/components/seo/catalogue-json-ld";
+import BreadcrumbsJsonLd from "@/components/seo/breadcrumbs-json-ld";
 
 // Revalidate the rendered shop HTML every 60s. Admin mutations call
 // revalidatePath("/shop") so changes go live immediately; this just
@@ -47,8 +49,27 @@ export default async function ShopPage({
     return true;
   });
 
+  const canonicalPath = cat
+    ? `/shop?cat=${cat}`
+    : material
+    ? `/shop?material=${encodeURIComponent(material)}`
+    : "/shop";
+  const collectionName = cat
+    ? `Shop · ${CATEGORIES.find((c) => c.id === cat)?.label ?? cat}`
+    : material
+    ? `Shop · ${material}`
+    : "Shop";
+
   return (
     <div className="pt-32 pb-24">
+      <CatalogueJsonLd
+        products={filtered}
+        url={canonicalPath}
+        name={collectionName}
+      />
+      <BreadcrumbsJsonLd
+        crumbs={[{ name: collectionName, path: canonicalPath }]}
+      />
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <p className="eyebrow text-muted">Catalogue</p>
         <h1 className="mt-3 font-display text-5xl tracking-tight md:text-7xl">

@@ -26,6 +26,7 @@ import {
   X,
 } from "lucide-react";
 import { submitOrder, type CheckoutState } from "./actions";
+import CheckoutLoading from "./loading";
 
 const MAX_ATTACHMENTS = 6;
 const MAX_FILE_MB = 8;
@@ -64,7 +65,7 @@ export default function CheckoutPage() {
     }
   }, [state, clear, router]);
 
-  if (!ready) return <div className="pt-40" />;
+  if (!ready) return <CheckoutLoading />;
 
   return (
     <div className="pt-28 pb-32 md:pt-32">

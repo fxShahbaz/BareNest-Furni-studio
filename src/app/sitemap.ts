@@ -17,6 +17,7 @@ const STATIC_PAGES: Array<{
   { path: "/showroom", changeFrequency: "monthly", priority: 0.8 },
   { path: "/materials", changeFrequency: "monthly", priority: 0.8 },
   { path: "/contact", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/returns", changeFrequency: "yearly", priority: 0.4 },
   { path: "/blog", changeFrequency: "weekly", priority: 0.8 },
 ];
 

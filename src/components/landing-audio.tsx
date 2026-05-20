@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Volume2, VolumeX } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 const SRC = "/audio/landing.mp3";
 const VOLUME = 0.45;
 const EVENT = "landingaudio:change";
-// Hard fallback: if canplaythrough never fires (some Safari/iOS networks
-// don't dispatch it reliably), surface the controls anyway after this
-// much time so the user isn't locked out.
-const READY_FALLBACK_MS = 8000;
+// Hard fallback: if the ready signals never fire (some Safari/iOS networks
+// drop progress events) surface the controls anyway so the user isn't
+// locked out.
+const READY_FALLBACK_MS = 2500;
 
 declare global {
   interface Window {
@@ -27,11 +26,13 @@ export default function LandingAudio() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const startedRef = useRef(false);
   const readyRef = useRef(false);
-  const [muted, setMuted] = useState(true);
-  const [ready, setReady] = useState(false);
-  const [started, setStarted] = useState(false);
+  const pathname = usePathname();
+  // Admin work stays silent. Everything else (site, invite, booklet)
+  // shares one persistent <audio> element via the root layout.
+  const enabled = !pathname?.startsWith("/admin");
 
   useEffect(() => {
+    if (!enabled) return;
     const audio = new Audio(SRC);
     audio.loop = true;
     audio.preload = "auto";
@@ -48,7 +49,6 @@ export default function LandingAudio() {
     const markReady = () => {
       if (readyRef.current) return;
       readyRef.current = true;
-      setReady(true);
       notify();
     };
 
@@ -60,7 +60,6 @@ export default function LandingAudio() {
       if (p && typeof p.then === "function") {
         p.then(() => {
           startedRef.current = true;
-          setStarted(true);
           notify();
         }).catch(() => {
           // Most browsers accept muted play() unconditionally, so failure
@@ -68,7 +67,6 @@ export default function LandingAudio() {
         });
       } else {
         startedRef.current = true;
-        setStarted(true);
         notify();
       }
     };
@@ -79,15 +77,21 @@ export default function LandingAudio() {
       if (a.paused) {
         a.muted = false;
         a.play().catch(() => {});
-        setMuted(false);
         startedRef.current = true;
         notify();
         return;
       }
-      const next = !a.muted;
-      a.muted = next;
-      setMuted(next);
+      a.muted = !a.muted;
       notify();
+    };
+
+    const removeUnmuteListeners = () => {
+      window.removeEventListener("pointerdown", unmute);
+      window.removeEventListener("pointermove", unmute);
+      window.removeEventListener("mousemove", unmute);
+      window.removeEventListener("keydown", unmute);
+      window.removeEventListener("touchstart", unmute);
+      window.removeEventListener("scroll", unmute);
     };
 
     const unmute = (e: Event) => {
@@ -96,18 +100,13 @@ export default function LandingAudio() {
       if (!a.muted) return;
       // Skip when the user is tapping the dedicated audio toggle — its
       // click handler will run right after this and would flip mute back
-      // on, causing the "two taps to start" bug. The toggle button is
-      // marked with data-audio-toggle on both the header and mobile
-      // variants.
+      // on, causing the "two taps to start" bug.
       const target = e.target as HTMLElement | null;
       if (target?.closest?.("[data-audio-toggle]")) return;
       a.muted = false;
-      setMuted(false);
       a.play().catch(() => {});
       notify();
-      window.removeEventListener("pointerdown", unmute);
-      window.removeEventListener("keydown", unmute);
-      window.removeEventListener("touchstart", unmute);
+      removeUnmuteListeners();
     };
 
     // Imperative API for the header toggle. The header subscribes to EVENT
@@ -120,12 +119,12 @@ export default function LandingAudio() {
     };
     notify();
 
-    // Visibility gate: only reveal controls when the browser believes it
-    // can play the full track without re-buffering. canplaythrough is the
-    // right signal; canplay fires too early (just enough to start).
-    audio.addEventListener("canplaythrough", markReady, { once: true });
-    // Some networks/codecs never fire canplaythrough — fall back to
-    // canplay + a small buffer, or to a hard timeout.
+    // Visibility gate: reveal the toggle as soon as the browser has any
+    // playable data. canplaythrough waits for the full buffer and arrives
+    // too late on slow connections — canplay / loadeddata is enough since
+    // the track is short and the cache header makes repeat visits instant.
+    audio.addEventListener("canplay", markReady, { once: true });
+    audio.addEventListener("loadeddata", markReady, { once: true });
     const fallback = window.setTimeout(markReady, READY_FALLBACK_MS);
 
     // Muted autoplay is allowed everywhere, so kick the loop into motion
@@ -133,9 +132,15 @@ export default function LandingAudio() {
     start();
     audio.addEventListener("loadedmetadata", start, { once: true });
 
-    window.addEventListener("pointerdown", unmute, { once: false });
-    window.addEventListener("keydown", unmute, { once: false });
+    // Unmute on the first real signal of presence. pointermove / mousemove
+    // make audio fade in the instant the cursor enters the page, without
+    // waiting for a click. touchstart covers mobile (no hover).
+    window.addEventListener("pointermove", unmute, { passive: true });
+    window.addEventListener("mousemove", unmute, { passive: true });
+    window.addEventListener("pointerdown", unmute);
+    window.addEventListener("keydown", unmute);
     window.addEventListener("touchstart", unmute, { passive: true });
+    window.addEventListener("scroll", unmute, { passive: true });
 
     const onVisibility = () => {
       const a = audioRef.current;
@@ -148,37 +153,21 @@ export default function LandingAudio() {
 
     return () => {
       window.clearTimeout(fallback);
-      window.removeEventListener("pointerdown", unmute);
-      window.removeEventListener("keydown", unmute);
-      window.removeEventListener("touchstart", unmute);
+      removeUnmuteListeners();
       document.removeEventListener("visibilitychange", onVisibility);
       audio.removeEventListener("loadedmetadata", start);
-      audio.removeEventListener("canplaythrough", markReady);
+      audio.removeEventListener("canplay", markReady);
+      audio.removeEventListener("loadeddata", markReady);
       audio.pause();
       audio.src = "";
       audioRef.current = null;
       if (window.__landingAudio) delete window.__landingAudio;
       notify();
     };
-  }, []);
+  }, [enabled]);
 
-  const onClick = () => window.__landingAudio?.toggle();
-
-  // Mobile floating control. Desktop uses <HeaderAudioToggle /> in the navbar.
-  return (
-    <button
-      type="button"
-      aria-label={muted ? "Unmute landing audio" : "Mute landing audio"}
-      aria-pressed={!muted}
-      onClick={onClick}
-      data-audio-toggle
-      className={cn(
-        "fixed bottom-[max(env(safe-area-inset-bottom),1.25rem)] left-5 z-40 grid h-11 w-11 place-items-center rounded-full border border-ink/10 bg-bone/90 text-ink/80 shadow-[0_15px_40px_-18px_rgba(20,17,14,0.45)] backdrop-blur transition-all duration-500 hover:bg-bone hover:text-ink md:hidden",
-        ready && started ? "opacity-100" : "pointer-events-none opacity-0",
-        !muted && "ring-2 ring-rust/50"
-      )}
-    >
-      {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-    </button>
-  );
+  // No mobile control — desktop uses <HeaderAudioToggle /> in the navbar,
+  // mobile gets no toggle by design. This component still mounts to drive
+  // playback.
+  return null;
 }

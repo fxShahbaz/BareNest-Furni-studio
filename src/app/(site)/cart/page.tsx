@@ -6,6 +6,7 @@ import { useCart } from "@/store/cart";
 import { formatINR, formatTaxLabel } from "@/lib/utils";
 import { Minus, Plus, Trash2, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import CartLoading from "./loading";
 
 export default function CartPage() {
   const items = useCart((s) => s.items);
@@ -24,7 +25,7 @@ export default function CartPage() {
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
 
-  if (!ready) return <div className="pt-40" />;
+  if (!ready) return <CartLoading />;
 
   return (
     <div className="pt-32 pb-24">

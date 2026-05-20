@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const EVENT = "landingaudio:change";
+// Matches Tailwind's `md:` breakpoint. Kept in sync manually because the
+// toggle is desktop-only by product decision — no toggle on phones.
+const DESKTOP_QUERY = "(min-width: 768px)";
 
 type State = {
   mounted: boolean;
@@ -33,6 +36,10 @@ function read(): State {
 
 export default function HeaderAudioToggle() {
   const [state, setState] = useState<State>(INITIAL);
+  // Start as `null` so SSR renders nothing and the first client paint
+  // matches — then resolve to the actual viewport on mount. Avoids any
+  // chance of the button flashing on phones.
+  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
 
   useEffect(() => {
     const update = () => setState(read());
@@ -40,6 +47,16 @@ export default function HeaderAudioToggle() {
     window.addEventListener(EVENT, update);
     return () => window.removeEventListener(EVENT, update);
   }, []);
+
+  useEffect(() => {
+    const mql = window.matchMedia(DESKTOP_QUERY);
+    const apply = () => setIsDesktop(mql.matches);
+    apply();
+    mql.addEventListener("change", apply);
+    return () => mql.removeEventListener("change", apply);
+  }, []);
+
+  if (!isDesktop) return null;
 
   const onClick = () => window.__landingAudio?.toggle();
 

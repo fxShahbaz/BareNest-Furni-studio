@@ -3,7 +3,9 @@ import { Inter, Fraunces, Caveat } from "next/font/google";
 import ReactDOM from "react-dom";
 import "./globals.css";
 import SiteJsonLd from "@/components/seo/site-json-ld";
+import GoogleAnalytics from "@/components/seo/google-analytics";
 import ServiceWorkerRegister from "@/components/service-worker-register";
+import LandingAudio from "@/components/landing-audio";
 import { SITE_URL, SHOWROOM } from "@/lib/utils";
 
 const inter = Inter({
@@ -95,6 +97,20 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
+  // Site-ownership verification tokens. Set the matching env vars in
+  // Vercel (or .env.local for dev) to emit the corresponding meta tags
+  // without redeploying for every search engine you add.
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+    other: {
+      ...(process.env.BING_SITE_VERIFICATION
+        ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION }
+        : {}),
+      ...(process.env.YANDEX_SITE_VERIFICATION
+        ? { "yandex-verification": process.env.YANDEX_SITE_VERIFICATION }
+        : {}),
+    },
+  },
   // icon.tsx + apple-icon.tsx + manifest.ts at the app root handle these
   // automatically via Next's file conventions.
   category: "Furniture",
@@ -126,7 +142,18 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-bone text-ink overflow-x-hidden">
+        {/* Preload + mount the background loop at the root so it survives
+            every route-group switch (site ↔ invite ↔ booklet). The
+            component itself opts out on /admin so admin work stays quiet. */}
+        <link
+          rel="preload"
+          as="audio"
+          href="/audio/landing.mp3"
+          type="audio/mpeg"
+        />
+        <LandingAudio />
         <SiteJsonLd />
+        <GoogleAnalytics />
         <ServiceWorkerRegister />
         {children}
       </body>
