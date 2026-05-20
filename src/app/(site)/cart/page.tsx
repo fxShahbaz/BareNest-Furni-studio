@@ -5,14 +5,38 @@ import Link from "next/link";
 import { useCart } from "@/store/cart";
 import { formatINR, formatTaxLabel } from "@/lib/utils";
 import { Minus, Plus, Trash2, ArrowRight } from "lucide-react";
-import { useEffect, useState } from "react";
-import CartLoading from "./loading";
+import { useSyncExternalStore } from "react";
+import { Skeleton } from "@/components/skeleton";
+
+// Zustand-persist hydration signal. We can't trust `items` until the
+// store has read from localStorage, otherwise we'd flash "empty cart"
+// for one frame before the real items appear. useSyncExternalStore is
+// the idiomatic way to subscribe to an out-of-React store and stays
+// stable across SSR (server snapshot is always false → matches the
+// initial client render, so React hydration aligns).
+function subscribeHydration(cb: () => void) {
+  return useCart.persist.onFinishHydration(cb);
+}
+function getHydratedSnapshot() {
+  return useCart.persist.hasHydrated();
+}
+function getHydratedServerSnapshot() {
+  return false;
+}
+function useCartHydrated() {
+  return useSyncExternalStore(
+    subscribeHydration,
+    getHydratedSnapshot,
+    getHydratedServerSnapshot
+  );
+}
 
 export default function CartPage() {
   const items = useCart((s) => s.items);
   const setQty = useCart((s) => s.setQty);
   const remove = useCart((s) => s.remove);
   const total = useCart((s) => s.total());
+  const hydrated = useCartHydrated();
   const taxSummary = (() => {
     if (items.length === 0) return "Included";
     const inclCount = items.filter((i) => (i.tax_inclusive ?? true)).length;
@@ -20,12 +44,6 @@ export default function CartPage() {
     if (inclCount === 0) return "Listed per item";
     return "See each item";
   })();
-
-  // hydration guard for persisted store
-  const [ready, setReady] = useState(false);
-  useEffect(() => setReady(true), []);
-
-  if (!ready) return <CartLoading />;
 
   return (
     <div className="pt-32 pb-24">
@@ -35,7 +53,9 @@ export default function CartPage() {
           Almost <span className="serif-italic">yours.</span>
         </h1>
 
-        {items.length === 0 ? (
+        {!hydrated ? (
+          <CartItemsSkeleton />
+        ) : items.length === 0 ? (
           <div className="mt-16 rounded-3xl border border-ink/10 bg-cream/40 p-12 text-center">
             <p className="text-muted">Your cart is empty.</p>
             <Link
@@ -166,6 +186,48 @@ function Row({
     <div className="flex justify-between">
       <dt className={big ? "font-display text-base" : "text-muted"}>{label}</dt>
       <dd className={big ? "font-display text-xl" : ""}>{value}</dd>
+    </div>
+  );
+}
+
+// Inner-only skeleton — the page chrome (heading, padding, max-width)
+// renders unconditionally above this, so swapping skeleton -> real items
+// doesn't shift the rest of the layout.
+function CartItemsSkeleton() {
+  return (
+    <div className="mt-12 grid gap-10 md:grid-cols-12">
+      <div className="md:col-span-8 space-y-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-4 rounded-3xl border border-ink/10 bg-cream/30 p-4"
+          >
+            <Skeleton
+              className="h-24 w-24 shrink-0"
+              rounded="rounded-2xl"
+            />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-5 w-48" />
+              <Skeleton className="h-3 w-28" rounded="rounded-full" />
+            </div>
+            <Skeleton className="h-8 w-20" rounded="rounded-full" />
+            <Skeleton className="h-5 w-16" />
+          </div>
+        ))}
+      </div>
+      <aside className="md:col-span-4 space-y-3 rounded-3xl border border-ink/10 bg-cream/30 p-6">
+        <Skeleton className="h-3 w-16" rounded="rounded-full" />
+        <div className="space-y-2 pt-2">
+          <Skeleton className="h-4 w-full" rounded="rounded-full" />
+          <Skeleton className="h-4 w-5/6" rounded="rounded-full" />
+        </div>
+        <div className="hairline my-4" />
+        <div className="flex items-baseline justify-between">
+          <Skeleton className="h-4 w-16" rounded="rounded-full" />
+          <Skeleton className="h-8 w-28" />
+        </div>
+        <Skeleton className="mt-4 h-12 w-full" rounded="rounded-full" />
+      </aside>
     </div>
   );
 }

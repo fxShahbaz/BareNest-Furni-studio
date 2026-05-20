@@ -12,7 +12,23 @@ export default function SiteJsonLd() {
   const orgId = `${SITE_URL}/#organization`;
   const businessId = `${SITE_URL}/#localbusiness`;
   const websiteId = `${SITE_URL}/#website`;
-  const logoUrl = absoluteUrl("/logo.png");
+  // Google's logo-pickup expects a roughly-square image with the mark on
+  // a solid background. /logo-square.png is generated from logo-mark.png
+  // at build time with a bone backdrop. The wide /logo.png stays as the
+  // social `image` for unfurl previews that prefer landscape.
+  const logoUrl = absoluteUrl("/logo-square.png");
+  const socialImageUrl = absoluteUrl("/logo.png");
+
+  // Top-level navigation, surfaced to Google as candidates for sitelinks.
+  const navLinks: { name: string; url: string }[] = [
+    { name: "Shop", url: absoluteUrl("/shop") },
+    { name: "Collections", url: absoluteUrl("/collections") },
+    { name: "Materials", url: absoluteUrl("/materials") },
+    { name: "Showroom", url: absoluteUrl("/showroom") },
+    { name: "Our Story", url: absoluteUrl("/story") },
+    { name: "Blog", url: absoluteUrl("/blog") },
+    { name: "Contact", url: absoluteUrl("/contact") },
+  ];
 
   const graph = {
     "@context": "https://schema.org",
@@ -21,18 +37,25 @@ export default function SiteJsonLd() {
         "@type": "Organization",
         "@id": orgId,
         name: SHOWROOM.brand,
+        alternateName: ["Bare Nest", "barenest"],
         legalName: SHOWROOM.studio,
         url: SITE_URL,
-        logo: logoUrl,
-        image: logoUrl,
+        logo: {
+          "@type": "ImageObject",
+          url: logoUrl,
+          width: 512,
+          height: 512,
+        },
+        image: socialImageUrl,
         email: SHOWROOM.email,
+        slogan: "Honest wood furniture. No particle board, ever.",
         founder: {
           "@type": "Person",
           name: SHOWROOM.founder,
         },
         foundingDate: "2018",
         description:
-          "Honest solid wood and MDF furniture, made in Patna. We do not stock particle board.",
+          "Honest solid wood and MDF furniture, hand-finished in Patna. We do not stock particle board.",
         sameAs: [
           SHOWROOM.socials.instagram,
           SHOWROOM.socials.youtube,
@@ -104,6 +127,7 @@ export default function SiteJsonLd() {
         "@id": websiteId,
         url: SITE_URL,
         name: SHOWROOM.brand,
+        alternateName: SHOWROOM.studio,
         description: `${SHOWROOM.studio} — honest furniture in Patna.`,
         publisher: { "@id": orgId },
         inLanguage: "en-IN",
@@ -116,6 +140,16 @@ export default function SiteJsonLd() {
           "query-input": "required name=search_term_string",
         },
       },
+      // Explicit nav candidates for Google's sitelinks algorithm. It picks
+      // sitelinks heuristically from internal anchors anyway, but giving
+      // it a curated list reduces the chance of it surfacing low-value
+      // pages (auth screens, etc).
+      ...navLinks.map((link) => ({
+        "@type": "SiteNavigationElement",
+        name: link.name,
+        url: link.url,
+        isPartOf: { "@id": websiteId },
+      })),
     ],
   };
 

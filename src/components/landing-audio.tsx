@@ -52,7 +52,11 @@ export default function LandingAudio() {
       notify();
     };
 
-    const start = () => {
+    // Desktop path: kick off muted playback on mount so the loop is already
+    // warm by the time the user moves the cursor. iOS rejects this (audio
+    // elements need a gesture even when muted) — we swallow the rejection
+    // and rely on the gesture listeners below.
+    const startMuted = () => {
       if (startedRef.current) return;
       const a = audioRef.current;
       if (!a) return;
@@ -62,8 +66,7 @@ export default function LandingAudio() {
           startedRef.current = true;
           notify();
         }).catch(() => {
-          // Most browsers accept muted play() unconditionally, so failure
-          // here usually means the element was torn down.
+          /* gesture required (mobile) — handled by `unlock` */
         });
       } else {
         startedRef.current = true;
@@ -85,28 +88,48 @@ export default function LandingAudio() {
       notify();
     };
 
-    const removeUnmuteListeners = () => {
-      window.removeEventListener("pointerdown", unmute);
-      window.removeEventListener("pointermove", unmute);
-      window.removeEventListener("mousemove", unmute);
-      window.removeEventListener("keydown", unmute);
-      window.removeEventListener("touchstart", unmute);
-      window.removeEventListener("scroll", unmute);
+    const removeUnlockListeners = () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("pointermove", unlock);
+      window.removeEventListener("mousemove", unlock);
+      window.removeEventListener("keydown", unlock);
+      window.removeEventListener("touchstart", unlock);
+      window.removeEventListener("touchend", unlock);
+      window.removeEventListener("click", unlock);
+      window.removeEventListener("scroll", unlock);
     };
 
-    const unmute = (e: Event) => {
+    // First user gesture → play unmuted. Critical: only tear down the
+    // listeners *after* play() actually resolves. iOS rejects play()
+    // outside a gesture and the previous implementation removed the
+    // listeners synchronously — meaning a failed first try silently
+    // locked the audio out forever. Keeping the listeners attached
+    // gives every subsequent gesture another chance.
+    const unlock = (e: Event) => {
       const a = audioRef.current;
       if (!a) return;
-      if (!a.muted) return;
-      // Skip when the user is tapping the dedicated audio toggle — its
-      // click handler will run right after this and would flip mute back
-      // on, causing the "two taps to start" bug.
+      // Skip the dedicated audio toggle (desktop only) — its own click
+      // handler runs next and would flip mute back on.
       const target = e.target as HTMLElement | null;
       if (target?.closest?.("[data-audio-toggle]")) return;
+
       a.muted = false;
-      a.play().catch(() => {});
-      notify();
-      removeUnmuteListeners();
+      // Re-assert volume in case iOS dropped it.
+      a.volume = VOLUME;
+      const p = a.play();
+      if (p && typeof p.then === "function") {
+        p.then(() => {
+          startedRef.current = true;
+          notify();
+          removeUnlockListeners();
+        }).catch(() => {
+          /* leave listeners attached — try again on the next gesture */
+        });
+      } else {
+        startedRef.current = true;
+        notify();
+        removeUnlockListeners();
+      }
     };
 
     // Imperative API for the header toggle. The header subscribes to EVENT
@@ -127,20 +150,23 @@ export default function LandingAudio() {
     audio.addEventListener("loadeddata", markReady, { once: true });
     const fallback = window.setTimeout(markReady, READY_FALLBACK_MS);
 
-    // Muted autoplay is allowed everywhere, so kick the loop into motion
-    // immediately. The button still won't appear until ready.
-    start();
-    audio.addEventListener("loadedmetadata", start, { once: true });
+    // Try muted autoplay (desktop). If it fails, the gesture listeners
+    // below pick up the slack.
+    startMuted();
+    audio.addEventListener("loadedmetadata", startMuted, { once: true });
 
-    // Unmute on the first real signal of presence. pointermove / mousemove
-    // make audio fade in the instant the cursor enters the page, without
-    // waiting for a click. touchstart covers mobile (no hover).
-    window.addEventListener("pointermove", unmute, { passive: true });
-    window.addEventListener("mousemove", unmute, { passive: true });
-    window.addEventListener("pointerdown", unmute);
-    window.addEventListener("keydown", unmute);
-    window.addEventListener("touchstart", unmute, { passive: true });
-    window.addEventListener("scroll", unmute, { passive: true });
+    // Gesture listeners. touchstart/touchend/click cover mobile (iOS
+    // rejects audio.play() unless it runs inside one of these). pointer*
+    // and scroll cover desktop so audio fades in on the first hint of
+    // presence — no click required.
+    window.addEventListener("pointermove", unlock, { passive: true });
+    window.addEventListener("mousemove", unlock, { passive: true });
+    window.addEventListener("pointerdown", unlock);
+    window.addEventListener("keydown", unlock);
+    window.addEventListener("touchstart", unlock, { passive: true });
+    window.addEventListener("touchend", unlock, { passive: true });
+    window.addEventListener("click", unlock);
+    window.addEventListener("scroll", unlock, { passive: true });
 
     const onVisibility = () => {
       const a = audioRef.current;
@@ -153,9 +179,9 @@ export default function LandingAudio() {
 
     return () => {
       window.clearTimeout(fallback);
-      removeUnmuteListeners();
+      removeUnlockListeners();
       document.removeEventListener("visibilitychange", onVisibility);
-      audio.removeEventListener("loadedmetadata", start);
+      audio.removeEventListener("loadedmetadata", startMuted);
       audio.removeEventListener("canplay", markReady);
       audio.removeEventListener("loadeddata", markReady);
       audio.pause();
@@ -168,6 +194,6 @@ export default function LandingAudio() {
 
   // No mobile control — desktop uses <HeaderAudioToggle /> in the navbar,
   // mobile gets no toggle by design. This component still mounts to drive
-  // playback.
+  // playback (gesture listeners unlock it on first tap).
   return null;
 }

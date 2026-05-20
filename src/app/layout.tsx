@@ -29,9 +29,9 @@ const caveat = Caveat({
   weight: ["600", "700"],
 });
 
-const DEFAULT_TITLE = `${SHOWROOM.brand} — ${SHOWROOM.studio}`;
+const DEFAULT_TITLE = `${SHOWROOM.brand} — Solid Wood & MDF Furniture, Patna`;
 const DEFAULT_DESCRIPTION =
-  "Honest solid wood and MDF furniture, made in Patna. Founded by Gaurav Bahri. Showroom inaugurates 18 June 2026.";
+  "Honest solid wood and MDF furniture, hand-finished in Patna. Founded by Gaurav Bahri. No particle board, ever. Showroom opens 18 June 2026.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -71,20 +71,14 @@ export const metadata: Metadata = {
     url: SITE_URL,
     title: DEFAULT_TITLE,
     description: DEFAULT_DESCRIPTION,
-    images: [
-      {
-        url: "/logo.png",
-        width: 1200,
-        height: 630,
-        alt: `${SHOWROOM.brand} — ${SHOWROOM.studio}`,
-      },
-    ],
+    // Image deliberately omitted — the per-route opengraph-image.tsx file
+    // convention generates a branded 1200×630 card. Setting images here
+    // would override it for every page.
   },
   twitter: {
     card: "summary_large_image",
     title: DEFAULT_TITLE,
     description: DEFAULT_DESCRIPTION,
-    images: ["/logo.png"],
   },
   robots: {
     index: true,
@@ -111,7 +105,7 @@ export const metadata: Metadata = {
         : {}),
     },
   },
-  // icon.tsx + apple-icon.tsx + manifest.ts at the app root handle these
+  // icon.png + apple-icon.png + manifest.ts at the app root handle these
   // automatically via Next's file conventions.
   category: "Furniture",
 };

@@ -2,12 +2,12 @@ import { Skeleton } from "@/components/skeleton";
 
 export default function CartLoading() {
   return (
-    <div className="pt-28 pb-24">
-      <div className="mx-auto max-w-[1100px] px-6 md:px-10">
+    <div className="pt-32 pb-24">
+      <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <Skeleton className="h-3 w-16" rounded="rounded-full" />
         <Skeleton className="mt-3 h-12 w-48 md:h-16" />
 
-        <div className="mt-10 grid gap-10 md:grid-cols-12">
+        <div className="mt-12 grid gap-10 md:grid-cols-12">
           <div className="md:col-span-8 space-y-4">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
