@@ -222,22 +222,22 @@ export default function StoryPage() {
             <div className="md:col-span-5">
               <div className="relative aspect-[4/5] overflow-hidden rounded-[1.75rem]">
                 <Image
-                  src="https://images.unsplash.com/photo-1581539250439-c96689b516dd?auto=format&fit=crop&w=900&q=80"
-                  alt="Inside a Patna workshop where bare nest pieces are built"
+                  src="/founder-gaurav-bahri.png"
+                  alt="Gaurav Bahri, founder of bare nest"
                   fill
                   sizes="(min-width: 768px) 40vw, 100vw"
-                  className="object-cover"
+                  className="object-cover object-top"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-bark/40 via-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-bark/60 via-bark/10" />
                 <div className="absolute inset-x-5 bottom-5 flex items-center justify-between text-bone">
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.22em] text-bone/70">
-                      Partner workshop
+                      Founder
                     </p>
-                    <p className="mt-1 font-display text-lg">Boring Road, Patna</p>
+                    <p className="mt-1 font-display text-lg">Gaurav Bahri · Lohiya Path, Patna</p>
                   </div>
                   <span className="rounded-full bg-bone px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-ink">
-                    Live
+                    Est. 2026
                   </span>
                 </div>
               </div>

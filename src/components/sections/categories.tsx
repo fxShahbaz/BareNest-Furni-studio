@@ -231,68 +231,119 @@ export default function Categories() {
   };
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative bg-cream/40"
-      style={{ height: `calc(100vh + ${maxX}px)` }}
-    >
-      <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
-        <div className="mx-auto flex w-full max-w-[1400px] items-end justify-between gap-4 px-6 pt-24 md:px-10 md:pt-28">
-          <div>
-            <p className="eyebrow text-muted">The catalogue</p>
-            <h2 className="mt-3 font-display text-4xl leading-[1.05] tracking-tight sm:text-5xl md:text-7xl">
-              Designed for{" "}
-              <span className="serif-italic">real rooms.</span>
-            </h2>
-          </div>
-          <Link
-            href="/shop"
-            className="hidden items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm text-bone md:inline-flex"
-          >
-            See all
-            <ArrowUpRight className="h-3.5 w-3.5" />
-          </Link>
+    <>
+      {/* Mobile: native horizontal scroller. Lets the OS handle momentum,
+          elastic bounce, and snap timing — none of which the JS pointer-drag
+          path on desktop can match on touch hardware. */}
+      <section className="relative bg-cream/40 md:hidden">
+        <div className="mx-auto w-full max-w-[1400px] px-6 pt-24">
+          <p className="eyebrow text-muted">The catalogue</p>
+          <h2 className="mt-3 font-display text-4xl leading-[1.05] tracking-tight sm:text-5xl">
+            Designed for{" "}
+            <span className="serif-italic">real rooms.</span>
+          </h2>
         </div>
 
-        <motion.div
-          ref={trackRef}
-          style={{ x, touchAction: "none" }}
-          onClickCapture={onClickCapture}
-          className="mt-auto flex cursor-grab select-none gap-4 px-6 pb-10 active:cursor-grabbing sm:gap-6 md:gap-8 md:px-10 md:pb-16"
+        <div
+          className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden pb-10 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          style={{ scrollPaddingInline: "1.5rem" }}
         >
           {CARDS.map((c, i) => (
             <Link
               key={c.id}
               href={`/shop?cat=${c.id}`}
-              draggable={false}
-              className="group relative block h-[58vh] w-[78vw] flex-none overflow-hidden rounded-3xl sm:w-[52vw] md:h-[60vh] md:w-[42vw]"
+              className="group relative block h-[58vh] w-[78vw] flex-none snap-start overflow-hidden rounded-3xl first:ml-6 last:mr-6 sm:w-[52vw]"
             >
               <Image
                 src={c.image}
                 alt={c.title}
                 fill
-                draggable={false}
-                sizes="(min-width: 768px) 42vw, (min-width: 640px) 52vw, 78vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                sizes="(min-width: 640px) 52vw, 78vw"
+                className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent" />
-              <div className="absolute inset-x-5 bottom-5 flex items-end justify-between text-bone md:inset-x-6 md:bottom-6">
+              <div className="absolute inset-x-5 bottom-5 flex items-end justify-between text-bone">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.3em] text-bone/70">
                     {String(i + 1).padStart(2, "0")} · {c.sub}
                   </p>
-                  <h3 className="mt-2 font-display text-2xl leading-tight sm:text-3xl md:text-4xl">
+                  <h3 className="mt-2 font-display text-2xl leading-tight sm:text-3xl">
                     {c.title}
                   </h3>
                 </div>
-                <div className="grid h-10 w-10 place-items-center rounded-full bg-bone text-ink transition-transform group-hover:-translate-y-1 group-hover:translate-x-1 md:h-12 md:w-12">
-                  <ArrowUpRight className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-bone text-ink">
+                  <ArrowUpRight className="h-3.5 w-3.5" />
                 </div>
               </div>
             </Link>
           ))}
-        </motion.div>
-      </div>
-    </section>
+        </div>
+      </section>
+
+      {/* Desktop: pinned section, horizontal track driven by page scroll. */}
+      <section
+        ref={sectionRef}
+        className="relative hidden bg-cream/40 md:block"
+        style={{ height: `calc(100vh + ${maxX}px)` }}
+      >
+        <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
+          <div className="mx-auto flex w-full max-w-[1400px] items-end justify-between gap-4 px-6 pt-24 md:px-10 md:pt-28">
+            <div>
+              <p className="eyebrow text-muted">The catalogue</p>
+              <h2 className="mt-3 font-display text-4xl leading-[1.05] tracking-tight sm:text-5xl md:text-7xl">
+                Designed for{" "}
+                <span className="serif-italic">real rooms.</span>
+              </h2>
+            </div>
+            <Link
+              href="/shop"
+              className="hidden items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm text-bone md:inline-flex"
+            >
+              See all
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          <motion.div
+            ref={trackRef}
+            style={{ x, touchAction: "none" }}
+            onClickCapture={onClickCapture}
+            className="mt-auto flex cursor-grab select-none gap-4 px-6 pb-10 active:cursor-grabbing sm:gap-6 md:gap-8 md:px-10 md:pb-16"
+          >
+            {CARDS.map((c, i) => (
+              <Link
+                key={c.id}
+                href={`/shop?cat=${c.id}`}
+                draggable={false}
+                className="group relative block h-[58vh] w-[78vw] flex-none overflow-hidden rounded-3xl sm:w-[52vw] md:h-[60vh] md:w-[42vw]"
+              >
+                <Image
+                  src={c.image}
+                  alt={c.title}
+                  fill
+                  draggable={false}
+                  sizes="(min-width: 768px) 42vw, (min-width: 640px) 52vw, 78vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent" />
+                <div className="absolute inset-x-5 bottom-5 flex items-end justify-between text-bone md:inset-x-6 md:bottom-6">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-bone/70">
+                      {String(i + 1).padStart(2, "0")} · {c.sub}
+                    </p>
+                    <h3 className="mt-2 font-display text-2xl leading-tight sm:text-3xl md:text-4xl">
+                      {c.title}
+                    </h3>
+                  </div>
+                  <div className="grid h-10 w-10 place-items-center rounded-full bg-bone text-ink transition-transform group-hover:-translate-y-1 group-hover:translate-x-1 md:h-12 md:w-12">
+                    <ArrowUpRight className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+    </>
   );
 }

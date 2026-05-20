@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 const FAQ = [
   {
     q: "How fast do you reply?",
-    a: "WhatsApp is fastest — typically within a couple of hours during the day (10:00–20:00 IST). Emails get answered the same day, often within an hour.",
+    a: "WhatsApp is fastest — typically within a couple of hours during the day (09:30–20:00 IST). Emails get answered the same day, often within an hour.",
   },
   {
     q: "Can I see and feel the materials before ordering?",

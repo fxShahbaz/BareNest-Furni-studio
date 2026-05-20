@@ -39,11 +39,12 @@ export default function Founder() {
           <div className="md:col-span-4">
             <div className="relative aspect-[3/4] overflow-hidden rounded-3xl">
               <Image
-                src="https://images.unsplash.com/photo-1521119989659-a83eee488004?auto=format&fit=crop&w=900&q=80"
+                src="/founder-gaurav-bahri.png"
                 alt="Founder Gaurav Bahri"
                 fill
-                className="object-cover"
+                className="object-cover object-top"
                 sizes="(min-width: 768px) 33vw, 100vw"
+                priority
               />
             </div>
             <p className="eyebrow mt-5 text-bone/60">Founder</p>

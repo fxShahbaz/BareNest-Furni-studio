@@ -29,6 +29,21 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "60mb",
     },
   },
+  async headers() {
+    return [
+      {
+        // Long-lived immutable cache for static audio assets in /public/audio.
+        // Treated as immutable — change the filename to bust.
+        source: "/audio/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

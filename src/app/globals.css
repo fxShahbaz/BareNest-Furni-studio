@@ -142,6 +142,7 @@ dialog:modal {
   animation: marquee 38s linear infinite;
 }
 
+
 /* image grain */
 .grain::after {
   content: "";

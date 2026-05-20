@@ -42,7 +42,7 @@ export default function ShowroomPage() {
             </a>
           </Card>
           <Card title="Visit at launch">
-            Inauguration: 18 June 2026, 11:00 AM IST.
+            Inauguration: 18 June 2026, 7:00 PM IST.
             <span className="mt-3 block whitespace-pre-line text-muted">
               {`${SHOWROOM.studio}\n${SHOWROOM.address.lines.join("\n")}`}
             </span>

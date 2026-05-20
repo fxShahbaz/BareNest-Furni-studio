@@ -84,7 +84,7 @@ export default function SiteJsonLd() {
               "Friday",
               "Saturday",
             ],
-            opens: "10:00",
+            opens: "09:30",
             closes: "19:00",
           },
         ],

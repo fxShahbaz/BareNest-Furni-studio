@@ -7,6 +7,7 @@ import { ArrowUpRight, ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { cn } from "@/lib/utils";
 import AuthChip from "@/components/auth-chip";
+import HeaderAudioToggle from "@/components/header-audio-toggle";
 
 function BrandMark({ size = "md" }: { size?: "sm" | "md" }) {
   const h = size === "sm" ? "h-9" : "h-10";
@@ -118,7 +119,7 @@ export default function Navbar({
     <>
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-40 transition-all duration-500",
+          "fixed inset-x-0 top-0 z-50 transition-all duration-500",
           // Border is always rendered as 1px to avoid a dark flash on
           // scroll (transition-all would otherwise tween border-width from
           // 0→1px while border-color was still defaulting to currentColor).
@@ -160,6 +161,7 @@ export default function Navbar({
         </nav>
 
         <div className="flex items-center gap-3">
+          <HeaderAudioToggle />
           <AuthChip />
           {onlineOrderingEnabled && (
             <Link

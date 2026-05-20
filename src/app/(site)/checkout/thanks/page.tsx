@@ -94,7 +94,7 @@ export default async function ThanksPage({
         <p className="mt-4 max-w-[55ch] text-muted md:text-lg">
           Your order is in our books. The studio will confirm on WhatsApp
           shortly — usually within a few hours during business time
-          (Mon–Sat, 10am–7pm IST).
+          (Mon–Sat, 9:30am–7pm IST).
         </p>
 
         {/* ref card */}

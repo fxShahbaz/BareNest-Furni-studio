@@ -21,13 +21,18 @@
 //
 // To force-bust the entire cache across all clients, bump CACHE_VERSION.
 
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const STATIC_CACHE = `bn-static-${CACHE_VERSION}`;
 const IMAGES_CACHE = `bn-images-${CACHE_VERSION}`;
 const FONTS_CACHE = `bn-fonts-${CACHE_VERSION}`;
 const HTML_CACHE = `bn-html-${CACHE_VERSION}`;
+const AUDIO_CACHE = `bn-audio-${CACHE_VERSION}`;
 
-const ALL_CACHES = [STATIC_CACHE, IMAGES_CACHE, FONTS_CACHE, HTML_CACHE];
+const ALL_CACHES = [STATIC_CACHE, IMAGES_CACHE, FONTS_CACHE, HTML_CACHE, AUDIO_CACHE];
+
+// Pre-warmed at install time so the very first landing-page play() hits a
+// cached copy. Add other audio paths here if more are introduced.
+const PRECACHE_AUDIO = ["/audio/landing.mp3"];
 
 const NETWORK_TIMEOUT_MS = 2500;
 
@@ -36,7 +41,24 @@ const BYPASS_HOSTS = [/^.*\.supabase\.co$/]; // anything except product-images,
                                               // which is handled separately below
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(self.skipWaiting());
+  event.waitUntil(
+    (async () => {
+      try {
+        const cache = await caches.open(AUDIO_CACHE);
+        // addAll is atomic — if one fetch fails the rest are rolled back.
+        // Use individual adds with catch so a missing file doesn't kill
+        // SW installation.
+        await Promise.all(
+          PRECACHE_AUDIO.map((href) =>
+            cache.add(new Request(href, { cache: "reload" })).catch(() => {})
+          )
+        );
+      } catch {
+        // Cache API unavailable — fall back to runtime cache-first.
+      }
+      await self.skipWaiting();
+    })()
+  );
 });
 
 self.addEventListener("activate", (event) => {
@@ -90,6 +112,22 @@ self.addEventListener("fetch", (event) => {
   // Next static chunks (immutable, fingerprinted) — cache-first.
   if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith(cacheFirst(req, STATIC_CACHE));
+    return;
+  }
+
+  // Audio assets in /audio/* — cache-first, served immutable from /public.
+  // Audio elements occasionally issue range requests; we skip those and
+  // let them go to the network so seek/range semantics stay correct.
+  if (
+    (req.destination === "audio" ||
+      url.pathname.startsWith("/audio/") ||
+      url.pathname.endsWith(".mp3") ||
+      url.pathname.endsWith(".m4a") ||
+      url.pathname.endsWith(".ogg") ||
+      url.pathname.endsWith(".wav")) &&
+    !req.headers.has("range")
+  ) {
+    event.respondWith(cacheFirst(req, AUDIO_CACHE));
     return;
   }
 

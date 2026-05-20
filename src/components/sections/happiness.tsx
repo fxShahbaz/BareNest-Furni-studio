@@ -313,7 +313,7 @@ function PolaroidCard({
         willChange: "transform, opacity",
       }}
       className={
-        "group absolute origin-center transform-gpu transition-transform duration-500 hover:!rotate-0 hover:scale-[1.04] hover:!z-50 " +
+        "group absolute origin-center transform-gpu transition-transform duration-500 hover:!rotate-0 hover:scale-[1.04] hover:!z-30 " +
         polaroid.className
       }
     >

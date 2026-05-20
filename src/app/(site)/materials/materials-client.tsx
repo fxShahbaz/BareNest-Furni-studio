@@ -84,7 +84,7 @@ export default function MaterialsClient({
       {/* Sticky section indicator chip */}
       <div
         className={cn(
-          "fixed left-1/2 top-20 z-30 -translate-x-1/2 transition-all duration-500 md:top-24",
+          "fixed left-1/2 top-28 z-40 -translate-x-1/2 transition-all duration-500 md:top-32",
           showRail
             ? "opacity-100 translate-y-0"
             : "pointer-events-none -translate-y-2 opacity-0"

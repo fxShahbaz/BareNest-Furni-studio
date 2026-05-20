@@ -238,6 +238,9 @@ export default function Hero() {
               <div className="text-[9px] uppercase tracking-[0.18em] text-bone/85 md:text-[10px]">
                 Studio opens
               </div>
+              <div className="mt-1 text-[9px] font-medium tracking-[0.14em] text-bone md:text-[10px]">
+                9:30 AM
+              </div>
             </div>
             <div className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-bone/30" />
           </div>

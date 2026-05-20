@@ -23,7 +23,7 @@ export const SHOWROOM = {
   studio: "Bare Nest Furni Studio",
   founder: "Gaurav Bahri",
   founderYears: 8,
-  inaugurationISO: "2026-06-18T11:00:00+05:30",
+  inaugurationISO: "2026-06-18T19:00:00+05:30",
   whatsappE164: "919031428728",
   email: "hello@barenest.in",
   city: "Patna",

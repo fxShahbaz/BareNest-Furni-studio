@@ -50,7 +50,7 @@ const INTENTS: Intent[] = [
   },
 ];
 
-// IST hours: studio is "open" (i.e. someone reads WhatsApp) 10:00–20:00 IST daily.
+// IST hours: studio is "open" (i.e. someone reads WhatsApp) 09:30–20:00 IST daily.
 function useLiveStatus() {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
@@ -67,7 +67,7 @@ function useLiveStatus() {
   const hour = ist.getHours();
   const minute = ist.getMinutes();
   const minutes = hour * 60 + minute;
-  const OPEN = 10 * 60;
+  const OPEN = 9 * 60 + 30;
   const CLOSE = 20 * 60;
   const isOpen = minutes >= OPEN && minutes < CLOSE;
   const minsToNext = isOpen ? CLOSE - minutes : (OPEN - minutes + 24 * 60) % (24 * 60);
@@ -231,7 +231,7 @@ export default function ContactClient({
             className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4"
           >
             <FactCard k="Reply time" v="~2 hrs" l="On WhatsApp during day" />
-            <FactCard k="Studio hours" v="10–20 IST" l="Daily" />
+            <FactCard k="Studio hours" v="9:30–20 IST" l="Daily" />
             <FactCard k="Studio city" v={city} l="India" />
             <FactCard k="Inauguration" v="18 Jun 26" l="Showroom opens" />
           </motion.div>
