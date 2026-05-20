@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const SRC = "/audio/landing.mp3";
 const VOLUME = 0.45;
 const EVENT = "landingaudio:change";
+// Audio is desktop-only by product decision. Keep in sync with
+// HeaderAudioToggle's DESKTOP_QUERY — phones get no toggle and no loop.
+const DESKTOP_QUERY = "(min-width: 768px)";
 // Hard fallback: if the ready signals never fire (some Safari/iOS networks
 // drop progress events) surface the controls anyway so the user isn't
 // locked out.
@@ -27,9 +30,21 @@ export default function LandingAudio() {
   const startedRef = useRef(false);
   const readyRef = useRef(false);
   const pathname = usePathname();
+  // Resolve viewport on mount. `null` during SSR/first paint so we
+  // never attempt to instantiate Audio on a phone, even briefly.
+  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const mql = window.matchMedia(DESKTOP_QUERY);
+    const apply = () => setIsDesktop(mql.matches);
+    apply();
+    mql.addEventListener("change", apply);
+    return () => mql.removeEventListener("change", apply);
+  }, []);
+
   // Admin work stays silent. Everything else (site, invite, booklet)
   // shares one persistent <audio> element via the root layout.
-  const enabled = !pathname?.startsWith("/admin");
+  const enabled = isDesktop === true && !pathname?.startsWith("/admin");
 
   useEffect(() => {
     if (!enabled) return;

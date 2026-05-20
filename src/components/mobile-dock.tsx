@@ -32,11 +32,25 @@ export default function MobileDock({
   // hide-on-scroll heuristic mid-transition. We freeze the hide logic and
   // force-reveal the dock for a short window after every pathname change.
   const navLockUntil = useRef(0);
+  // Generous: covers click → async layout fetch → page-fade-in. Cart's
+  // layout in particular awaits a settings lookup, so the window must
+  // outlast the slowest route, not just the scroll reset.
+  const NAV_LOCK_MS = 1400;
 
   useEffect(() => {
     setHidden(false);
-    navLockUntil.current = performance.now() + 700;
+    navLockUntil.current = performance.now() + NAV_LOCK_MS;
   }, [pathname]);
+
+  // Lock synchronously the instant a dock link is tapped — before
+  // pathname changes and before SmoothScroll's scroll-to-0 can fire a
+  // scroll event the heuristic might misread. Without this the dock
+  // briefly hides on slow routes (cart) where the pathname useEffect
+  // runs later than the scroll event from the route transition.
+  const onDockNav = () => {
+    navLockUntil.current = performance.now() + NAV_LOCK_MS;
+    setHidden(false);
+  };
 
   // Hide when scrolling down, reveal when scrolling up (Apple-style).
   useEffect(() => {
@@ -91,6 +105,8 @@ export default function MobileDock({
               href={it.href}
               aria-label={it.label}
               aria-current={active ? "page" : undefined}
+              onPointerDown={onDockNav}
+              onClick={onDockNav}
               className={cn(
                 "relative flex flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-2.5 transition-colors duration-300 active:scale-[0.96]",
                 active ? "text-bone" : "text-ink/70"
