@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
   openGraph: {
     title: "You're invited — bare nest inauguration",
-    description: "18 June 2026 · 7:00 PM · Patna. Come celebrate with us.",
+    description: "18 June 2026 · 10:00 AM · Patna. Come celebrate with us.",
     type: "website",
   },
 };
@@ -95,7 +95,7 @@ export default function InvitePage() {
           <DetailCard
             icon={<Clock className="h-4 w-4" />}
             label="Time"
-            primary="7:00 PM"
+            primary="10:00 AM"
             secondary="Indian Standard Time"
           />
           <DetailCard

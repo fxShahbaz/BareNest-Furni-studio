@@ -13,10 +13,10 @@ export default function LaunchEventJsonLd() {
   const orgId = `${SITE_URL}/#organization`;
   const venueId = `${SITE_URL}/#localbusiness`;
 
-  // Inauguration is at 19:00 IST; we don't have an end time so default
+  // Inauguration is at 10:00 IST; we don't have an end time so default
   // to +3 hours which is a typical opening ceremony slot.
-  const start = SHOWROOM.inaugurationISO; // "2026-06-18T19:00:00+05:30"
-  const end = "2026-06-18T22:00:00+05:30";
+  const start = SHOWROOM.inaugurationISO; // "2026-06-18T10:00:00+05:30"
+  const end = "2026-06-18T13:00:00+05:30";
 
   const data = {
     "@context": "https://schema.org",

@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { CalendarPlus, Share2, Check } from "lucide-react";
 import confetti from "canvas-confetti";
 
-// ICS for the inauguration. DTSTART/DTEND in UTC — 18 June 2026, 7:00 PM IST
-// is 13:30 UTC; 10:00 PM IST end is 16:30 UTC.
+// ICS for the inauguration. DTSTART/DTEND in UTC — 18 June 2026, 10:00 AM IST
+// is 04:30 UTC; 1:00 PM IST end is 07:30 UTC.
 // LOCATION must escape commas with backslashes per RFC 5545.
 const ICS_CONTENT = [
   "BEGIN:VCALENDAR",
@@ -16,8 +16,8 @@ const ICS_CONTENT = [
   "BEGIN:VEVENT",
   "UID:barenest-inauguration-2026-06-18@barenest",
   "DTSTAMP:20260518T000000Z",
-  "DTSTART:20260618T133000Z",
-  "DTEND:20260618T163000Z",
+  "DTSTART:20260618T043000Z",
+  "DTEND:20260618T073000Z",
   "SUMMARY:Bare Nest Furni Studio — Inauguration",
   "DESCRIPTION:Inauguration of Bare Nest Furni Studio. Solid wood and MDF furniture\\, honestly made\\, in Patna. Founded by Gaurav Bahri.",
   "LOCATION:Ground Floor\\, House No 285\\, Lohiya Path\\, Garbhuchak\\, P.S. Rukanpura\\, Patna\\, Bihar 800014",
@@ -27,7 +27,7 @@ const ICS_CONTENT = [
 ].join("\r\n");
 
 const SHARE_TEXT =
-  "You're invited — Bare Nest Furni Studio inauguration. 18 June 2026, 7:00 PM, Patna. Come celebrate with us.";
+  "You're invited — Bare Nest Furni Studio inauguration. 18 June 2026, 10:00 AM, Patna. Come celebrate with us.";
 
 export default function InviteActions() {
   const [copied, setCopied] = useState(false);

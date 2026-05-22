@@ -13,15 +13,16 @@
 //      /icon, /apple-icon, /opengraph-image) — stale-while-revalidate.
 //      Returns cache instantly, refreshes in background.
 //
-//   4. HTML documents (GET to a same-origin route) — network-first
-//      with a 2.5s timeout, falls back to cache for the offline /
-//      flaky-network case.
+//   4. HTML documents (GET to a same-origin route) — network-first.
+//      Lets the network finish on slow connections (no aggressive race);
+//      only falls back to cache if fetch genuinely errors. The cached
+//      offline page is shown only when fetch fails AND no cache exists.
 //
 //   5. Everything else (server actions, /api/*, /admin/*) — bypass.
 //
 // To force-bust the entire cache across all clients, bump CACHE_VERSION.
 
-const CACHE_VERSION = "v2";
+const CACHE_VERSION = "v3";
 const STATIC_CACHE = `bn-static-${CACHE_VERSION}`;
 const IMAGES_CACHE = `bn-images-${CACHE_VERSION}`;
 const FONTS_CACHE = `bn-fonts-${CACHE_VERSION}`;
@@ -34,7 +35,10 @@ const ALL_CACHES = [STATIC_CACHE, IMAGES_CACHE, FONTS_CACHE, HTML_CACHE, AUDIO_C
 // cached copy. Add other audio paths here if more are introduced.
 const PRECACHE_AUDIO = ["/audio/landing.mp3"];
 
-const NETWORK_TIMEOUT_MS = 2500;
+// Hard safety net only — covers a hung connection that never errors.
+// Not a "show offline page" trigger; falls back to cache, not to the
+// offline shell, when this fires.
+const NETWORK_HARD_TIMEOUT_MS = 15000;
 
 const BYPASS_PATHS = ["/admin", "/api/", "/auth/", "/_next/data"];
 const BYPASS_HOSTS = [/^.*\.supabase\.co$/]; // anything except product-images,
@@ -177,25 +181,51 @@ async function staleWhileRevalidate(req, cacheName) {
 
 async function networkFirst(req, cacheName) {
   const cache = await caches.open(cacheName);
+
+  // Real abort so the fetch is actually cancelled if the hard timeout fires.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), NETWORK_HARD_TIMEOUT_MS);
+
   try {
-    const res = await Promise.race([
-      fetch(req),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("timeout")), NETWORK_TIMEOUT_MS)
-      ),
-    ]);
+    const res = await fetch(req, { signal: controller.signal });
+    clearTimeout(timer);
     if (res && res.ok && res.status === 200) {
-      cache.put(req, res.clone());
+      cache.put(req, res.clone()).catch(() => {});
     }
     return res;
   } catch {
+    clearTimeout(timer);
     const hit = await cache.match(req);
     if (hit) return hit;
+    // Only emit the offline shell when the browser itself reports offline.
+    // A slow/cold response on a healthy connection must NOT trigger it —
+    // re-throw so the browser shows its native network error instead of a
+    // misleading "you appear to be offline" page.
+    const isOffline =
+      typeof self !== "undefined" &&
+      self.navigator &&
+      self.navigator.onLine === false;
+    if (!isOffline) {
+      // Surface the real failure to the browser; do not lie to the user.
+      throw new Error("network-error");
+    }
     return new Response(
-      "<!doctype html><meta charset=utf-8><title>Offline</title><h1>You appear to be offline.</h1>",
+      `<!doctype html><meta charset="utf-8"><title>Offline</title>` +
+        `<meta name="viewport" content="width=device-width,initial-scale=1">` +
+        `<style>body{font-family:system-ui,-apple-system,sans-serif;` +
+        `display:flex;flex-direction:column;align-items:center;` +
+        `justify-content:center;min-height:100vh;margin:0;padding:24px;` +
+        `text-align:center;color:#1a1a1a;background:#faf7f2}` +
+        `h1{font-size:24px;margin:0 0 12px}p{margin:0 0 20px;color:#555}` +
+        `button{background:#1a1a1a;color:#fff;border:0;border-radius:8px;` +
+        `padding:12px 20px;font-size:15px;cursor:pointer}</style>` +
+        `<h1>You're offline</h1>` +
+        `<p>Check your connection and try again.</p>` +
+        `<button onclick="location.reload()">Retry</button>` +
+        `<script>window.addEventListener("online",()=>location.reload())</script>`,
       {
         status: 503,
-        headers: { "Content-Type": "text/html" },
+        headers: { "Content-Type": "text/html; charset=utf-8" },
       }
     );
   }
